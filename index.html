@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todowa - AI-Powered Todo App</title>
+    <meta name="description" content="Next-generation AI-powered Todo application with gamification">
+    <meta name="theme-color" content="#0066ff">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Main App Container -->
+    <div class="app-container" id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1 class="logo">🎯 Todowa</h1>
+                    <div class="current-date" id="currentDate"></div>
+                </div>
+                
+                <div class="header-controls">
+                    <div class="level-display" id="levelDisplay">
+                        <div class="level-badge">
+                            <span class="level-emoji" id="levelEmoji">🆕</span>
+                            <span class="level-text" id="levelText">Newbie</span>
+                        </div>
+                        <div class="exp-progress">
+                            <div class="exp-bar">
+                                <div class="exp-fill" id="expFill"></div>
+                            </div>
+                            <span class="exp-text" id="expText">0 / 10 XP</span>
+                        </div>
+                    </div>
+                    
+                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                        <span class="theme-icon">🌙</span>
+                    </button>
+                    
+                    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-content">
+                <div class="nav-header">
+                    <h2>Menu</h2>
+                    <button class="close-sidebar" id="closeSidebar" aria-label="Close menu">×</button>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#" data-view="dashboard" class="nav-item active">📊 Dashboard</a></li>
+                    <li><a href="#" data-view="all-tasks" class="nav-item">📝 All Tasks</a></li>
+                    <li><a href="#" data-view="completed" class="nav-item">✅ Completed</a></li>
+                    <li><a href="#" data-view="analytics" class="nav-item">📈 Analytics</a></li>
+                    <li><a href="#" data-view="themes" class="nav-item">🎨 Themes</a></li>
+                    <li><a href="#" data-view="settings" class="nav-item">⚙️ Settings</a></li>
+                    <li><a href="#" data-view="about" class="nav-item">ℹ️ About</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Sidebar Backdrop -->
+        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Quote Slideshow -->
+            <section class="quote-section">
+                <div class="quote-container" id="quoteContainer">
+                    <p class="quote-text" id="quoteText">Loading inspiration...</p>
+                    <div class="quote-controls">
+                        <button class="quote-pause" id="quotePause" aria-label="Pause quotes">⏸️</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dashboard View -->
+            <section class="view-content" id="dashboardView">
+                <!-- Add Task Form -->
+                <div class="add-task-section">
+                    <h2>Add New Task</h2>
+                    <form class="add-task-form" id="addTaskForm">
+                        <div class="form-row">
+                            <input type="text" id="taskTitle" class="form-control" placeholder="Task title..." required>
+                            <select id="taskCategory" class="form-control">
+                                <option value="Work">💼 Work</option>
+                                <option value="Personal">👤 Personal</option>
+                                <option value="Health">💪 Health</option>
+                                <option value="Study">📚 Study</option>
+                                <option value="Shopping">🛒 Shopping</option>
+                            </select>
+                        </div>
+                        <textarea id="taskDescription" class="form-control" placeholder="Description (optional)..." rows="2"></textarea>
+                        <div class="form-row">
+                            <select id="taskPriority" class="form-control">
+                                <option value="Low">🟢 Low Priority</option>
+                                <option value="Medium">🟡 Medium Priority</option>
+                                <option value="High">🔴 High Priority</option>
+                            </select>
+                            <input type="date" id="taskDueDate" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn--primary btn--full-width">
+                            <span>➕ Add Task</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Task Statistics -->
+                <div class="stats-section">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalTasks">0</div>
+                            <div class="stat-label">Total Tasks</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="completedTasks">0</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="todayTasks">0</div>
+                            <div class="stat-label">Due Today</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="currentStreak">0</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task List -->
+                <div class="task-list-section">
+                    <div class="task-header">
+                        <h2>Your Tasks</h2>
+                        <div class="task-filters">
+                            <select id="filterCategory" class="form-control">
+                                <option value="">All Categories</option>
+                                <option value="Work">💼 Work</option>
+                                <option value="Personal">👤 Personal</option>
+                                <option value="Health">💪 Health</option>
+                                <option value="Study">📚 Study</option>
+                                <option value="Shopping">🛒 Shopping</option>
+                            </select>
+                            <select id="sortTasks" class="form-control">
+                                <option value="dueDate">Sort by Due Date</option>
+                                <option value="priority">Sort by Priority</option>
+                                <option value="category">Sort by Category</option>
+                                <option value="createdAt">Sort by Created Date</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="task-list" id="taskList"></div>
+                </div>
+            </section>
+
+            <!-- Other Views (Hidden by default) -->
+            <section class="view-content hidden" id="allTasksView">
+                <h2>All Tasks</h2>
+                <div class="task-list" id="allTasksList"></div>
+            </section>
+
+            <section class="view-content hidden" id="completedView">
+                <h2>Completed Tasks</h2>
+                <div class="task-list" id="completedTasksList"></div>
+            </section>
+
+            <section class="view-content hidden" id="analyticsView">
+                <h2>Analytics Dashboard</h2>
+                <div class="analytics-grid">
+                    <div class="card">
+                        <h3>Productivity Trend</h3>
+                        <div class="chart-container" style="height: 200px; position: relative;">
+                            <canvas id="productivityChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Category Distribution</h3>
+                        <div class="chart-container" style="height: 200px; position: relative;">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="view-content hidden" id="themesView">
+                <h2>Choose Your Theme</h2>
+                <div class="theme-selector">
+                    <div class="theme-option" data-theme="dark">
+                        <div class="theme-preview theme-preview--dark"></div>
+                        <h3>Dark Theme</h3>
+                        <p>Professional dark interface with blue accents</p>
+                    </div>
+                    <div class="theme-option" data-theme="neon">
+                        <div class="theme-preview theme-preview--neon"></div>
+                        <h3>Neon Theme</h3>
+                        <p>Vibrant cyberpunk aesthetics with neon colors</p>
+                    </div>
+                    <div class="theme-option" data-theme="sakura">
+                        <div class="theme-preview theme-preview--sakura"></div>
+                        <h3>Sakura Theme</h3>
+                        <p>Soft pastels inspired by cherry blossoms</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="view-content hidden" id="settingsView">
+                <h2>Settings</h2>
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <h3>Data Management</h3>
+                        <div class="setting-controls">
+                            <button class="btn btn--secondary" id="exportData">📁 Export Data</button>
+                            <button class="btn btn--secondary" id="importData">📂 Import Data</button>
+                            <input type="file" id="importFile" accept=".json" class="hidden">
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <h3>Notifications</h3>
+                        <div class="setting-controls">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="notificationsEnabled" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <h3>Pomodoro Timer</h3>
+                        <div class="setting-controls">
+                            <input type="number" id="pomodoroLength" class="form-control" value="25" min="5" max="60">
+                            <span>minutes</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="view-content hidden" id="aboutView">
+                <h2>About Todowa</h2>
+                <div class="about-content">
+                    <div class="app-info">
+                        <h3>🎯 Todowa v1.0.0</h3>
+                        <p>Next-generation AI-powered Todo application with gamification and modern features.</p>
+                        <div class="features-list">
+                            <h4>Features:</h4>
+                            <ul>
+                                <li>✅ Offline PWA functionality</li>
+                                <li>🎮 Gamification with XP and levels</li>
+                                <li>🎨 Multiple themes</li>
+                                <li>⏰ Pomodoro timer integration</li>
+                                <li>📊 Analytics and insights</li>
+                                <li>🌙 Dark mode support</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <button class="developer-credit" id="developerCredit">
+                    Developed By WaizMarco 🌹
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modals -->
+    <!-- Level Up Modal -->
+    <div class="modal hidden" id="levelUpModal">
+        <div class="modal-content celebration-modal">
+            <div class="celebration-content">
+                <div class="level-up-animation">
+                    <div class="celebration-particles"></div>
+                    <h2>🎉 LEVEL UP! 🎉</h2>
+                    <div class="new-level-display">
+                        <span class="new-level-emoji" id="newLevelEmoji">⚡</span>
+                        <span class="new-level-name" id="newLevelName">Challenger</span>
+                    </div>
+                    <p class="level-up-message">You've reached a new level of productivity!</p>
+                    <button class="btn btn--primary" id="closeLevelUp">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Developer Info Modal -->
+    <div class="modal hidden" id="developerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>👨‍💻 Developer Info</h2>
+                <button class="modal-close" id="closeDeveloperModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="developer-info">
+                    <h3>WaizMarco 🌹</h3>
+                    <p>Full-Stack Developer & UI/UX Designer</p>
+                    <div class="social-links">
+                        <a href="#" target="_blank" class="social-link">
+                            <span>🐙</span> GitHub
+                        </a>
+                        <a href="#" target="_blank" class="social-link">
+                            <span>💼</span> Portfolio
+                        </a>
+                        <a href="#" target="_blank" class="social-link">
+                            <span>📱</span> Telegram
+                        </a>
+                        <a href="#" target="_blank" class="social-link">
+                            <span>🐦</span> Twitter/X
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Timer Modal -->
+    <div class="modal hidden" id="timerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⏰ Task Timer</h2>
+                <button class="modal-close" id="closeTimerModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="timer-display">
+                    <div class="timer-circle">
+                        <svg class="timer-svg" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" class="timer-bg"></circle>
+                            <circle cx="50" cy="50" r="45" class="timer-progress" id="timerProgress"></circle>
+                        </svg>
+                        <div class="timer-text" id="timerText">25:00</div>
+                    </div>
+                    <div class="timer-controls">
+                        <button class="btn btn--primary" id="startTimer">Start</button>
+                        <button class="btn btn--secondary" id="pauseTimer">Pause</button>
+                        <button class="btn btn--secondary" id="resetTimer">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div class="modal hidden" id="taskDetailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Task Details</h2>
+                <button class="modal-close" id="closeTaskDetail">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editTaskForm">
+                    <input type="hidden" id="editTaskId">
+                    <div class="form-group">
+                        <label class="form-label">Title</label>
+                        <input type="text" id="editTaskTitle" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea id="editTaskDescription" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select id="editTaskCategory" class="form-control">
+                                <option value="Work">💼 Work</option>
+                                <option value="Personal">👤 Personal</option>
+                                <option value="Health">💪 Health</option>
+                                <option value="Study">📚 Study</option>
+                                <option value="Shopping">🛒 Shopping</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Priority</label>
+                            <select id="editTaskPriority" class="form-control">
+                                <option value="Low">🟢 Low</option>
+                                <option value="Medium">🟡 Medium</option>
+                                <option value="High">🔴 High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Due Date</label>
+                        <input type="date" id="editTaskDueDate" class="form-control" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn btn--primary">Save Changes</button>
+                        <button type="button" class="btn btn--secondary" id="deleteTask">Delete Task</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div class="toast hidden" id="successToast">
+        <div class="toast-content">
+            <span class="toast-icon">🎉</span>
+            <span class="toast-message" id="toastMessage">Task completed!</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="manifest" href="manifest.json" />
+<script>
+  if ('serviceWorker' in navigator) {
+     navigator.serviceWorker.register('sw.js');
+  }
+</script>
+
+    <script src="app.js"></script>
+</body>
+</html>
