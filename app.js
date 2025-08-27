@@ -1,816 +1,1504 @@
-// Todowa PWA - Main Application Script
-// Simplified and robust implementation
+// Todowa - Ultimate Todo App
+// Main Application JavaScript
 
-let app = {
-    // Application state
-    tasks: [],
-    currentTheme: 'dark',
-    currentQuoteIndex: 0,
-    quotePaused: false,
-    quoteTimer: null,
-    userProgress: {
-        id: 'main',
-        exp: 0,
-        level: 0,
-        streak: 0,
-        totalCompleted: 0
-    },
-    
-    // Sample data
-    sampleTodos: [
-        {"id":1,"title":"Finish chemistry notes","description":"Summarize chapter 4","category":"Study","priority":"High","dueDate":"2025-08-28","createdAt":"2025-08-27","completed":false},
-        {"id":2,"title":"30-min workout","description":"Upper body routine","category":"Health","priority":"Medium","dueDate":"2025-08-27","createdAt":"2025-08-27","completed":false},
-        {"id":3,"title":"Buy groceries","description":"Milk, eggs, bread","category":"Shopping","priority":"Low","dueDate":"2025-08-27","createdAt":"2025-08-27","completed":false},
-        {"id":4,"title":"Publish blog post","description":"Draft AI study tips article","category":"Work","priority":"Medium","dueDate":"2025-08-30","createdAt":"2025-08-27","completed":false},
-        {"id":5,"title":"Read 20 pages","description":"Atomic Habits","category":"Personal","priority":"Low","dueDate":"2025-08-27","createdAt":"2025-08-27","completed":false}
-    ],
-    
-    quotes: [
-        "The secret of getting ahead is getting started.",
-        "Don't watch the clock; do what it does. Keep going.",
-        "Success is the sum of small efforts repeated day in and day out.",
-        "Your future is created by what you do today, not tomorrow.",
-        "Action is the foundational key to all success.",
-        "Well done is better than well said.",
-        "The way to get started is to quit talking and begin doing.",
-        "Innovation distinguishes between a leader and a follower.",
-        "Life is what happens to you while you're busy making other plans.",
-        "The future belongs to those who believe in the beauty of their dreams.",
-        "It is during our darkest moments that we must focus to see the light.",
-        "You miss 100% of the shots you don't take.",
-        "Whether you think you can or you think you can't, you're right.",
-        "A person who never made a mistake never tried anything new.",
-        "The only impossible journey is the one you never begin."
-    ],
-    
-    levelSystem: {
-        0: { name: 'Newbie', emoji: '🆕', threshold: 0 },
-        1: { name: 'Challenger', emoji: '⚡', threshold: 10 },
-        2: { name: 'Professional', emoji: '💼', threshold: 30 },
-        3: { name: 'Hacker', emoji: '🔥', threshold: 60 },
-        4: { name: 'Developer', emoji: '👨‍💻', threshold: 80 },
-        5: { name: 'Monarch', emoji: '👑', threshold: 100 },
-        6: { name: 'LEGEND', emoji: '🏆', threshold: 200 }
-    },
-
-    // Initialize the application
-    init() {
-        console.log('Initializing Todowa App...');
+class TodowaApp {
+    constructor() {
+        this.todos = [];
+        this.userProgress = {
+            level: 0,
+            xp: 0,
+            totalXP: 0,
+            streak: 0,
+            lastCompletionDate: null,
+            completedToday: 0,
+            totalCompleted: 0
+        };
         
+        this.settings = {
+            theme: 'light',
+            reducedMotion: false,
+            highContrast: false,
+            notifications: true
+        };
+
+        this.currentView = 'dashboard';
+        this.currentQuoteIndex = 0;
+        this.quoteInterval = null;
+        this.timer = {
+            isRunning: false,
+            isPaused: false,
+            timeLeft: 1500, // 25 minutes in seconds
+            totalTime: 1500,
+            interval: null,
+            lastUpdate: Date.now()
+        };
+
+        this.quotes = [
+            "The secret of getting ahead is getting started.",
+            "Don't watch the clock; do what it does. Keep going.",
+            "Success is the sum of small efforts repeated day in and day out.",
+            "Your future is created by what you do today, not tomorrow.",
+            "Action is the foundational key to all success.",
+            "The only way to do great work is to love what you do.",
+            "Innovation distinguishes between a leader and a follower.",
+            "Stay hungry. Stay foolish.",
+            "The future belongs to those who believe in the beauty of their dreams.",
+            "It is during our darkest moments that we must focus to see the light.",
+            "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+            "The only impossible journey is the one you never begin.",
+            "In the middle of difficulty lies opportunity.",
+            "Believe you can and you're halfway there.",
+            "The way to get started is to quit talking and begin doing.",
+            "Don't be afraid to give your best to what seemingly are small jobs.",
+            "If you really look closely, most overnight successes took a long time.",
+            "The real test is not whether you avoid this failure, because you won't.",
+            "Entrepreneurs are great at dealing with uncertainty and also very good at minimizing risk.",
+            "The successful warrior is the average person with laser-like focus.",
+            "Opportunities don't happen. You create them.",
+            "Try not to become a person of success, but rather try to become a person of value.",
+            "Great things in business are never done by one person. They're done by a team of people.",
+            "If you are not willing to risk the usual, you will have to settle for the ordinary.",
+            "All progress takes place outside the comfort zone.",
+            "Success is walking from failure to failure with no loss of enthusiasm.",
+            "The only place where success comes before work is in the dictionary.",
+            "If you want to achieve excellence, you can get there today.",
+            "The difference between ordinary and extraordinary is that little extra.",
+            "Success is the result of preparation, hard work, and learning from failure.",
+            "Don't let yesterday take up too much of today.",
+            "You learn more from failure than from success.",
+            "If you are working on something exciting that you really care about, you don't have to be pushed.",
+            "Experience is a hard teacher because she gives the test first, the lesson afterward.",
+            "To know how much there is to know is the beginning of learning to live.",
+            "I find that the harder I work, the more luck I seem to have.",
+            "The secret to success is to do the common thing uncommonly well.",
+            "Success is not just about what you accomplish in your life, it's about what you inspire others to do.",
+            "Don't be pushed around by the fears in your mind. Be led by the dreams in your heart.",
+            "The road to success and the road to failure are almost exactly the same.",
+            "Success is liking yourself, liking what you do, and liking how you do it.",
+            "A successful person is one who can lay a firm foundation with the bricks others have thrown at him.",
+            "Success is not about being the best. It's about always getting better.",
+            "The successful person has the habit of doing the things failures don't like to do.",
+            "Success isn't just about what you accomplish in your life, it's about what you inspire others to do.",
+            "Your limitation—it's only your imagination.",
+            "Push yourself, because no one else is going to do it for you.",
+            "Great things never come from comfort zones.",
+            "Dream it. Wish it. Do it.",
+            "Success doesn't just find you. You have to go out and get it."
+        ];
+
+        this.levels = [
+            { level: 0, minXP: 0, emoji: '🆕', title: 'Newbie' },
+            { level: 1, minXP: 50, emoji: '⚡', title: 'Challenger' },
+            { level: 2, minXP: 100, emoji: '💼', title: 'Professional' },
+            { level: 3, minXP: 200, emoji: '🔥', title: 'Hacker' },
+            { level: 4, minXP: 500, emoji: '👨‍💻', title: 'Developer' },
+            { level: 5, minXP: 1000, emoji: '👑', title: 'Monarch' },
+            { level: 6, minXP: 2000, emoji: '🏆', title: 'LEGEND' }
+        ];
+
+        this.init();
+    }
+
+    async init() {
         try {
-            this.loadUserData();
-            this.loadTheme();
-            this.updateCurrentDate();
-            this.initQuotes();
-            this.renderTasks();
-            this.updateStats();
-            this.updateLevelDisplay();
+            // Set initial theme from system preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                this.settings.theme = 'dark';
+            }
+            
+            await this.initDB();
+            await this.loadData();
+            this.loadSampleData();
             this.initEventListeners();
+            this.initPWA();
+            this.updateDisplay();
+            this.startQuoteCarousel();
+            this.initKeyboardShortcuts();
+            this.requestNotificationPermission();
+            this.applySettings();
             
-            console.log('Todowa App initialized successfully!');
+            console.log('Todowa app initialized successfully');
         } catch (error) {
-            console.error('Error initializing app:', error);
+            console.error('Failed to initialize app:', error);
         }
-    },
+    }
 
-    // Load user data from localStorage
-    loadUserData() {
-        try {
-            // Load tasks
-            const savedTasks = localStorage.getItem('todowa-tasks');
-            if (savedTasks) {
-                this.tasks = JSON.parse(savedTasks);
-            } else {
-                // First run - add sample tasks
-                this.tasks = [...this.sampleTodos];
-                this.saveTasks();
-                this.showToast('Welcome to Todowa! Sample tasks added! 🎯', 'success');
-            }
+    // Database Management
+    async initDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open('TodowaDB', 1);
             
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => {
+                this.db = request.result;
+                resolve();
+            };
+            
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                
+                if (!db.objectStoreNames.contains('todos')) {
+                    db.createObjectStore('todos', { keyPath: 'id', autoIncrement: true });
+                }
+                
+                if (!db.objectStoreNames.contains('userProgress')) {
+                    db.createObjectStore('userProgress', { keyPath: 'id' });
+                }
+                
+                if (!db.objectStoreNames.contains('settings')) {
+                    db.createObjectStore('settings', { keyPath: 'id' });
+                }
+            };
+        });
+    }
+
+    async loadData() {
+        try {
+            // Load todos
+            const todosTransaction = this.db.transaction(['todos'], 'readonly');
+            const todosStore = todosTransaction.objectStore('todos');
+            const todosRequest = todosStore.getAll();
+            
+            await new Promise((resolve) => {
+                todosRequest.onsuccess = () => {
+                    this.todos = todosRequest.result || [];
+                    resolve();
+                };
+            });
+
             // Load user progress
-            const savedProgress = localStorage.getItem('todowa-userProgress');
-            if (savedProgress) {
-                this.userProgress = JSON.parse(savedProgress);
-            }
-        } catch (error) {
-            console.error('Error loading user data:', error);
-            this.tasks = [...this.sampleTodos];
-        }
-    },
+            const progressTransaction = this.db.transaction(['userProgress'], 'readonly');
+            const progressStore = progressTransaction.objectStore('userProgress');
+            const progressRequest = progressStore.get('main');
+            
+            await new Promise((resolve) => {
+                progressRequest.onsuccess = () => {
+                    if (progressRequest.result) {
+                        this.userProgress = { ...this.userProgress, ...progressRequest.result };
+                    }
+                    resolve();
+                };
+            });
 
-    // Save tasks to localStorage
-    saveTasks() {
+            // Load settings
+            const settingsTransaction = this.db.transaction(['settings'], 'readonly');
+            const settingsStore = settingsTransaction.objectStore('settings');
+            const settingsRequest = settingsStore.get('main');
+            
+            await new Promise((resolve) => {
+                settingsRequest.onsuccess = () => {
+                    if (settingsRequest.result) {
+                        this.settings = { ...this.settings, ...settingsRequest.result };
+                    }
+                    resolve();
+                };
+            });
+
+        } catch (error) {
+            console.error('Failed to load data:', error);
+        }
+    }
+
+    async saveData() {
         try {
-            localStorage.setItem('todowa-tasks', JSON.stringify(this.tasks));
+            // Save user progress
+            const progressTransaction = this.db.transaction(['userProgress'], 'readwrite');
+            const progressStore = progressTransaction.objectStore('userProgress');
+            progressStore.put({ id: 'main', ...this.userProgress });
+
+            // Save settings
+            const settingsTransaction = this.db.transaction(['settings'], 'readwrite');
+            const settingsStore = settingsTransaction.objectStore('settings');
+            settingsStore.put({ id: 'main', ...this.settings });
+
         } catch (error) {
-            console.error('Error saving tasks:', error);
+            console.error('Failed to save data:', error);
         }
-    },
+    }
 
-    // Save user progress to localStorage
-    saveUserProgress() {
-        try {
-            localStorage.setItem('todowa-userProgress', JSON.stringify(this.userProgress));
-        } catch (error) {
-            console.error('Error saving user progress:', error);
+    async saveTodo(todo) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['todos'], 'readwrite');
+            const store = transaction.objectStore('todos');
+            const request = todo.id ? store.put(todo) : store.add(todo);
+            
+            request.onsuccess = () => {
+                if (!todo.id) {
+                    todo.id = request.result;
+                }
+                resolve(todo);
+            };
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async deleteTodoFromDB(id) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['todos'], 'readwrite');
+            const store = transaction.objectStore('todos');
+            const request = store.delete(id);
+            
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    loadSampleData() {
+        if (this.todos.length === 0) {
+            const sampleTodos = [
+                {
+                    id: 1,
+                    title: "Read 20 pages",
+                    description: "Atomic Habits",
+                    category: "Study",
+                    priority: "Low",
+                    dueDate: "2025-08-28",
+                    createdAt: new Date().toISOString(),
+                    completed: false
+                },
+                {
+                    id: 2,
+                    title: "Workout 30m",
+                    description: "Cardio session",
+                    category: "Health",
+                    priority: "Medium",
+                    dueDate: "2025-08-27",
+                    createdAt: new Date().toISOString(),
+                    completed: false
+                },
+                {
+                    id: 3,
+                    title: "Finish project report",
+                    description: "Draft slides",
+                    category: "Work",
+                    priority: "High",
+                    dueDate: "2025-08-29",
+                    createdAt: new Date().toISOString(),
+                    completed: false
+                }
+            ];
+
+            this.todos = [...sampleTodos];
         }
-    },
+    }
 
-    // Theme management
-    loadTheme() {
-        const savedTheme = localStorage.getItem('todowa-theme') || 'dark';
-        this.setTheme(savedTheme);
-    },
-
-    setTheme(theme) {
-        console.log('Setting theme to:', theme);
-        this.currentTheme = theme;
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('todowa-theme', theme);
+    // PWA Implementation
+    initPWA() {
+        // Handle install prompt
+        let deferredPrompt;
         
-        // Update theme icon
-        const themeIcon = document.querySelector('.theme-icon');
-        if (themeIcon) {
-            const icons = { dark: '🌙', neon: '⚡', sakura: '🌸' };
-            themeIcon.textContent = icons[theme] || '🌙';
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            this.showInstallBanner();
+        });
+
+        const installBtn = document.getElementById('install-btn');
+        const dismissBtn = document.getElementById('dismiss-install');
+        
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const result = await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                    this.hideInstallBanner();
+                }
+            });
+        }
+
+        if (dismissBtn) {
+            dismissBtn.addEventListener('click', () => {
+                this.hideInstallBanner();
+            });
+        }
+
+        // Update theme-color meta tag based on current theme
+        this.updateThemeColor();
+    }
+
+    showInstallBanner() {
+        const banner = document.getElementById('install-banner');
+        if (banner) {
+            banner.classList.remove('hidden');
+        }
+    }
+
+    hideInstallBanner() {
+        const banner = document.getElementById('install-banner');
+        if (banner) {
+            banner.classList.add('hidden');
+        }
+    }
+
+    updateThemeColor() {
+        const meta = document.querySelector('meta[name="theme-color"]');
+        const colors = {
+            light: '#218083',
+            dark: '#0066ff',
+            neon: '#00ffff',
+            sakura: '#ffb7c5'
+        };
+        if (meta) {
+            meta.setAttribute('content', colors[this.settings.theme] || colors.light);
+        }
+    }
+
+    // Event Listeners
+    initEventListeners() {
+        // Navigation
+        const hamburger = document.getElementById('hamburger');
+        const sidebar = document.getElementById('sidebar');
+        
+        if (hamburger) {
+            hamburger.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.toggleSidebar();
+                console.log('Hamburger clicked');
+            });
+        }
+
+        // Navigation links
+        document.querySelectorAll('[data-nav]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const navTarget = e.currentTarget.dataset.nav;
+                console.log('Navigating to:', navTarget);
+                this.navigateTo(navTarget);
+                this.closeSidebar();
+            });
+        });
+
+        // Add task form
+        const addTaskForm = document.getElementById('addTaskForm');
+        if (addTaskForm) {
+            addTaskForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.addTaskFromForm();
+            });
+        }
+
+        // Voice input
+        const voiceBtn = document.getElementById('voiceInputBtn');
+        if (voiceBtn) {
+            voiceBtn.addEventListener('click', () => this.toggleVoiceInput());
+        }
+
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => this.cycleTheme());
+        }
+
+        // Theme selection
+        document.querySelectorAll('.theme-select-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const theme = e.currentTarget.closest('.theme-card').dataset.theme;
+                this.setTheme(theme);
+            });
+        });
+
+        // Search and filters
+        const searchInput = document.getElementById('searchTasks');
+        const filterCategory = document.getElementById('filterCategory');
+        const sortTasks = document.getElementById('sortTasks');
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => this.searchTasks(e.target.value));
+        }
+        if (filterCategory) {
+            filterCategory.addEventListener('change', (e) => this.filterByCategory(e.target.value));
+        }
+        if (sortTasks) {
+            sortTasks.addEventListener('change', (e) => this.sortTasks(e.target.value));
+        }
+
+        // Timer controls
+        const startTimer = document.getElementById('startTimer');
+        const pauseTimer = document.getElementById('pauseTimer');
+        const resetTimer = document.getElementById('resetTimer');
+        
+        if (startTimer) startTimer.addEventListener('click', () => this.startTimer());
+        if (pauseTimer) pauseTimer.addEventListener('click', () => this.pauseTimer());
+        if (resetTimer) resetTimer.addEventListener('click', () => this.resetTimer());
+        
+        document.querySelectorAll('.timer-preset').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const minutes = parseInt(e.currentTarget.dataset.minutes);
+                this.setTimerPreset(minutes);
+            });
+        });
+
+        // Settings
+        const reducedMotion = document.getElementById('reducedMotion');
+        const highContrast = document.getElementById('highContrast');
+        const exportBtn = document.getElementById('exportData');
+        const importBtn = document.getElementById('importData');
+        const importFile = document.getElementById('importFile');
+        const clearBtn = document.getElementById('clearData');
+        
+        if (reducedMotion) {
+            reducedMotion.addEventListener('change', (e) => {
+                this.settings.reducedMotion = e.target.checked;
+                this.applySettings();
+                this.saveData();
+            });
+        }
+
+        if (highContrast) {
+            highContrast.addEventListener('change', (e) => {
+                this.settings.highContrast = e.target.checked;
+                this.applySettings();
+                this.saveData();
+            });
+        }
+
+        if (exportBtn) exportBtn.addEventListener('click', () => this.exportData());
+        if (importBtn) importBtn.addEventListener('click', () => importFile?.click());
+        if (importFile) importFile.addEventListener('change', (e) => this.importData(e.target.files[0]));
+        if (clearBtn) clearBtn.addEventListener('click', () => this.clearAllData());
+
+        // Modals
+        const creditLink = document.getElementById('creditLink');
+        if (creditLink) {
+            creditLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.showModal('developerModal');
+            });
         }
         
-        // Update theme options
-        document.querySelectorAll('.theme-option').forEach(option => {
-            option.classList.remove('active');
-            if (option.getAttribute('data-theme') === theme) {
-                option.classList.add('active');
+        const closeLevelUp = document.getElementById('closeLevelUp');
+        if (closeLevelUp) {
+            closeLevelUp.addEventListener('click', () => this.hideModal('levelUpModal'));
+        }
+        
+        document.querySelectorAll('.modal__close').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const modal = e.currentTarget.closest('.modal');
+                this.hideModal(modal.id);
+            });
+        });
+
+        document.querySelectorAll('.modal__backdrop').forEach(backdrop => {
+            backdrop.addEventListener('click', (e) => {
+                const modal = e.currentTarget.closest('.modal');
+                this.hideModal(modal.id);
+            });
+        });
+
+        // Quote carousel pause on hover
+        const quoteCarousel = document.getElementById('quoteCarousel');
+        if (quoteCarousel) {
+            quoteCarousel.addEventListener('mouseenter', () => this.pauseQuoteCarousel());
+            quoteCarousel.addEventListener('mouseleave', () => this.resumeQuoteCarousel());
+        }
+
+        // Close sidebar on outside click
+        document.addEventListener('click', (e) => {
+            if (sidebar && hamburger) {
+                if (sidebar.classList.contains('active') && 
+                    !sidebar.contains(e.target) && 
+                    !hamburger.contains(e.target)) {
+                    this.closeSidebar();
+                }
             }
         });
-    },
 
+        // Date update
+        this.updateCurrentDate();
+        setInterval(() => this.updateCurrentDate(), 60000); // Update every minute
+    }
+
+    initKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+N - Add new task
+            if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                const taskTitle = document.getElementById('taskTitle');
+                if (taskTitle) taskTitle.focus();
+            }
+            
+            // / - Focus search
+            if (e.key === '/' && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                const activeElement = document.activeElement;
+                if (activeElement.tagName !== 'INPUT' && activeElement.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    const searchInput = document.getElementById('searchTasks');
+                    if (searchInput) searchInput.focus();
+                }
+            }
+            
+            // ? - Show help
+            if (e.key === '?' && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                const activeElement = document.activeElement;
+                if (activeElement.tagName !== 'INPUT' && activeElement.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    this.showModal('helpModal');
+                }
+            }
+            
+            // Escape - Close modals
+            if (e.key === 'Escape') {
+                const activeModals = document.querySelectorAll('.modal:not(.hidden)');
+                activeModals.forEach(modal => this.hideModal(modal.id));
+                this.closeSidebar();
+            }
+        });
+    }
+
+    // Navigation
+    toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const hamburger = document.getElementById('hamburger');
+        
+        if (sidebar && hamburger) {
+            sidebar.classList.toggle('active');
+            hamburger.classList.toggle('active');
+            console.log('Sidebar toggled:', sidebar.classList.contains('active'));
+        }
+    }
+
+    closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const hamburger = document.getElementById('hamburger');
+        
+        if (sidebar && hamburger) {
+            sidebar.classList.remove('active');
+            hamburger.classList.remove('active');
+        }
+    }
+
+    navigateTo(view) {
+        console.log('Navigating to view:', view);
+        
+        // Hide all views
+        document.querySelectorAll('.view-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        
+        // Show selected view
+        const targetView = document.getElementById(`${view}-view`);
+        if (targetView) {
+            targetView.classList.add('active');
+        } else {
+            console.error('View not found:', `${view}-view`);
+        }
+        
+        // Update navigation state
+        document.querySelectorAll('[data-nav]').forEach(link => {
+            link.classList.remove('active');
+        });
+        
+        const navLink = document.querySelector(`[data-nav="${view}"]`);
+        if (navLink) {
+            navLink.classList.add('active');
+        }
+        
+        this.currentView = view;
+        this.updateViewData();
+    }
+
+    updateViewData() {
+        switch (this.currentView) {
+            case 'completed':
+                this.renderCompletedTasks();
+                break;
+            case 'analytics':
+                this.updateAnalytics();
+                break;
+        }
+    }
+
+    // Todo Management
+    async addTodo(todoData) {
+        const todo = {
+            ...todoData,
+            id: todoData.id || Date.now(),
+            createdAt: todoData.createdAt || new Date().toISOString(),
+            completed: false
+        };
+
+        try {
+            this.todos.push(todo);
+            await this.saveTodo(todo);
+            this.renderTasks();
+            this.updateDisplay();
+            this.saveData();
+            
+            // Add task animation and XP
+            this.animateTaskAdd();
+            console.log('Task added:', todo.title);
+        } catch (error) {
+            console.error('Failed to add todo:', error);
+        }
+    }
+
+    addTaskFromForm() {
+        const titleInput = document.getElementById('taskTitle');
+        const descInput = document.getElementById('taskDescription');
+        const categoryInput = document.getElementById('taskCategory');
+        const priorityInput = document.getElementById('taskPriority');
+        const dueDateInput = document.getElementById('taskDueDate');
+        
+        if (!titleInput || !titleInput.value.trim()) return;
+        
+        const todoData = {
+            title: titleInput.value.trim(),
+            description: descInput ? descInput.value.trim() : '',
+            category: categoryInput ? categoryInput.value : 'Personal',
+            priority: priorityInput ? priorityInput.value : 'Medium',
+            dueDate: dueDateInput ? dueDateInput.value || null : null
+        };
+
+        this.addTodo(todoData);
+        
+        // Clear form
+        if (titleInput) titleInput.value = '';
+        if (descInput) descInput.value = '';
+        if (dueDateInput) dueDateInput.value = '';
+    }
+
+    async completeTodo(id) {
+        const todo = this.todos.find(t => t.id == id);
+        if (!todo || todo.completed) return;
+
+        todo.completed = true;
+        todo.completedAt = new Date().toISOString();
+
+        try {
+            await this.saveTodo(todo);
+            
+            // Update progress
+            this.addXP(2); // +2 XP for task completion
+            this.userProgress.completedToday++;
+            this.userProgress.totalCompleted++;
+            
+            // Check for daily goal
+            if (this.userProgress.completedToday >= 3) {
+                this.addXP(5); // Bonus XP for daily goal
+            }
+            
+            // Check for perfect day
+            const todayTodos = this.getTodayTasks();
+            if (todayTodos.length > 0 && todayTodos.every(t => t.completed)) {
+                this.addXP(15); // Perfect day bonus
+            }
+
+            this.animateTaskCompletion(id);
+            this.updateDisplay();
+            this.saveData();
+            
+            // Trigger confetti
+            setTimeout(() => this.createConfetti(), 300);
+            
+            console.log('Task completed:', todo.title);
+            
+        } catch (error) {
+            console.error('Failed to complete todo:', error);
+        }
+    }
+
+    async deleteTodo(id) {
+        if (!confirm('Are you sure you want to delete this task?')) return;
+        
+        try {
+            await this.deleteTodoFromDB(id);
+            this.todos = this.todos.filter(t => t.id != id);
+            this.renderTasks();
+            this.updateDisplay();
+            console.log('Task deleted:', id);
+        } catch (error) {
+            console.error('Failed to delete todo:', error);
+        }
+    }
+
+    // Gamification System
+    addXP(amount) {
+        const oldLevel = this.getCurrentLevel();
+        this.userProgress.xp += amount;
+        this.userProgress.totalXP += amount;
+        
+        const newLevel = this.getCurrentLevel();
+        
+        if (newLevel.level > oldLevel.level) {
+            setTimeout(() => {
+                this.showLevelUp(newLevel);
+                this.createLevelUpParticles();
+            }, 500);
+        }
+        
+        this.updateLevelDisplay();
+    }
+
+    getCurrentLevel() {
+        for (let i = this.levels.length - 1; i >= 0; i--) {
+            if (this.userProgress.totalXP >= this.levels[i].minXP) {
+                return this.levels[i];
+            }
+        }
+        return this.levels[0];
+    }
+
+    getNextLevel() {
+        const currentLevel = this.getCurrentLevel();
+        const nextLevelIndex = currentLevel.level + 1;
+        return nextLevelIndex < this.levels.length ? this.levels[nextLevelIndex] : null;
+    }
+
+    updateLevelDisplay() {
+        const currentLevel = this.getCurrentLevel();
+        const nextLevel = this.getNextLevel();
+        
+        const levelEmoji = document.getElementById('levelEmoji');
+        const levelText = document.getElementById('levelText');
+        const xpProgress = document.getElementById('xpProgress');
+        const xpText = document.getElementById('xpText');
+        
+        if (levelEmoji) levelEmoji.textContent = currentLevel.emoji;
+        if (levelText) levelText.textContent = currentLevel.title;
+        
+        if (nextLevel) {
+            const progress = ((this.userProgress.totalXP - currentLevel.minXP) / (nextLevel.minXP - currentLevel.minXP)) * 100;
+            if (xpProgress) xpProgress.style.width = `${Math.min(progress, 100)}%`;
+            if (xpText) xpText.textContent = `${this.userProgress.totalXP} / ${nextLevel.minXP} XP`;
+        } else {
+            if (xpProgress) xpProgress.style.width = '100%';
+            if (xpText) xpText.textContent = `${this.userProgress.totalXP} XP (MAX)`;
+        }
+    }
+
+    showLevelUp(level) {
+        const newLevelEmoji = document.getElementById('newLevelEmoji');
+        const newLevelText = document.getElementById('newLevelText');
+        
+        if (newLevelEmoji) newLevelEmoji.textContent = level.emoji;
+        if (newLevelText) newLevelText.textContent = level.title;
+        
+        this.showModal('levelUpModal');
+    }
+
+    // Theme Management
     cycleTheme() {
-        const themes = ['dark', 'neon', 'sakura'];
-        const currentIndex = themes.indexOf(this.currentTheme);
-        const nextIndex = (currentIndex + 1) % themes.length;
-        this.setTheme(themes[nextIndex]);
-    },
+        const themes = ['light', 'dark', 'neon', 'sakura'];
+        const currentIndex = themes.indexOf(this.settings.theme);
+        const nextTheme = themes[(currentIndex + 1) % themes.length];
+        this.setTheme(nextTheme);
+    }
 
-    // Date management
+    setTheme(theme) {
+        this.settings.theme = theme;
+        this.applySettings();
+        this.updateThemeColor();
+        this.saveData();
+        console.log('Theme changed to:', theme);
+    }
+
+    applyTheme() {
+        document.documentElement.setAttribute('data-theme', this.settings.theme);
+    }
+
+    applySettings() {
+        this.applyTheme();
+        
+        // Update settings form
+        const reducedMotion = document.getElementById('reducedMotion');
+        const highContrast = document.getElementById('highContrast');
+        
+        if (reducedMotion) reducedMotion.checked = this.settings.reducedMotion;
+        if (highContrast) highContrast.checked = this.settings.highContrast;
+        
+        // Apply reduced motion
+        if (this.settings.reducedMotion) {
+            document.body.classList.add('reduced-motion');
+        } else {
+            document.body.classList.remove('reduced-motion');
+        }
+        
+        // Apply high contrast
+        if (this.settings.highContrast) {
+            document.body.classList.add('high-contrast');
+        } else {
+            document.body.classList.remove('high-contrast');
+        }
+    }
+
+    // Quote Carousel
+    startQuoteCarousel() {
+        this.updateQuote();
+        this.quoteInterval = setInterval(() => {
+            this.nextQuote();
+        }, 10000); // 10 seconds
+    }
+
+    pauseQuoteCarousel() {
+        if (this.quoteInterval) {
+            clearInterval(this.quoteInterval);
+            this.quoteInterval = null;
+        }
+    }
+
+    resumeQuoteCarousel() {
+        if (!this.quoteInterval) {
+            this.startQuoteCarousel();
+        }
+    }
+
+    nextQuote() {
+        this.currentQuoteIndex = (this.currentQuoteIndex + 1) % this.quotes.length;
+        this.updateQuote();
+    }
+
+    updateQuote() {
+        const quoteElement = document.getElementById('currentQuote');
+        if (quoteElement) {
+            const quote = this.quotes[this.currentQuoteIndex];
+            
+            quoteElement.style.opacity = '0';
+            setTimeout(() => {
+                quoteElement.textContent = quote;
+                quoteElement.style.opacity = '1';
+            }, 150);
+        }
+    }
+
+    // Timer System
+    startTimer() {
+        if (this.timer.isRunning) return;
+        
+        this.timer.isRunning = true;
+        this.timer.isPaused = false;
+        this.timer.lastUpdate = Date.now();
+        
+        this.timer.interval = setInterval(() => {
+            this.timer.timeLeft--;
+            this.timer.lastUpdate = Date.now();
+            this.updateTimerDisplay();
+            
+            if (this.timer.timeLeft <= 0) {
+                this.timerComplete();
+            }
+        }, 1000);
+        
+        this.updateTimerButtons();
+    }
+
+    pauseTimer() {
+        if (!this.timer.isRunning) return;
+        
+        this.timer.isPaused = !this.timer.isPaused;
+        
+        if (this.timer.isPaused) {
+            clearInterval(this.timer.interval);
+        } else {
+            this.startTimer();
+        }
+        
+        this.updateTimerButtons();
+    }
+
+    resetTimer() {
+        this.timer.isRunning = false;
+        this.timer.isPaused = false;
+        this.timer.timeLeft = this.timer.totalTime;
+        
+        if (this.timer.interval) {
+            clearInterval(this.timer.interval);
+        }
+        
+        this.updateTimerDisplay();
+        this.updateTimerButtons();
+    }
+
+    setTimerPreset(minutes) {
+        this.resetTimer();
+        this.timer.totalTime = minutes * 60;
+        this.timer.timeLeft = this.timer.totalTime;
+        this.updateTimerDisplay();
+    }
+
+    updateTimerDisplay() {
+        const minutes = Math.floor(this.timer.timeLeft / 60);
+        const seconds = this.timer.timeLeft % 60;
+        const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        const timerTime = document.getElementById('timerTime');
+        if (timerTime) {
+            timerTime.textContent = timeString;
+        }
+        
+        // Update circular progress
+        const timerProgress = document.getElementById('timerProgress');
+        if (timerProgress) {
+            const progress = ((this.timer.totalTime - this.timer.timeLeft) / this.timer.totalTime) * 565.48;
+            timerProgress.style.strokeDashoffset = 565.48 - progress;
+        }
+    }
+
+    updateTimerButtons() {
+        const startBtn = document.getElementById('startTimer');
+        const pauseBtn = document.getElementById('pauseTimer');
+        
+        if (startBtn && pauseBtn) {
+            if (this.timer.isRunning && !this.timer.isPaused) {
+                startBtn.textContent = '⏸️ Running';
+                startBtn.disabled = true;
+                pauseBtn.textContent = '⏸️ Pause';
+                pauseBtn.disabled = false;
+            } else if (this.timer.isPaused) {
+                startBtn.textContent = '▶️ Start';
+                startBtn.disabled = false;
+                pauseBtn.textContent = '▶️ Resume';
+                pauseBtn.disabled = false;
+            } else {
+                startBtn.textContent = '▶️ Start';
+                startBtn.disabled = false;
+                pauseBtn.textContent = '⏸️ Pause';
+                pauseBtn.disabled = true;
+            }
+        }
+    }
+
+    timerComplete() {
+        this.resetTimer();
+        this.showNotification('Timer Complete!', 'Time to take a break or start the next session.');
+        this.createConfetti();
+    }
+
+    // Voice Input
+    toggleVoiceInput() {
+        const btn = document.getElementById('voiceInputBtn');
+        
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert('Voice input is not supported in your browser.');
+            return;
+        }
+        
+        if (btn && btn.classList.contains('active')) {
+            this.stopVoiceInput();
+        } else {
+            this.startVoiceInput();
+        }
+    }
+
+    startVoiceInput() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        this.recognition = new SpeechRecognition();
+        
+        this.recognition.continuous = false;
+        this.recognition.interimResults = false;
+        this.recognition.lang = 'en-US';
+        
+        const btn = document.getElementById('voiceInputBtn');
+        if (btn) btn.classList.add('active');
+        
+        this.recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            const titleInput = document.getElementById('taskTitle');
+            if (titleInput) titleInput.value = transcript;
+            this.stopVoiceInput();
+        };
+        
+        this.recognition.onerror = () => {
+            this.stopVoiceInput();
+        };
+        
+        this.recognition.onend = () => {
+            this.stopVoiceInput();
+        };
+        
+        this.recognition.start();
+    }
+
+    stopVoiceInput() {
+        if (this.recognition) {
+            this.recognition.stop();
+        }
+        
+        const btn = document.getElementById('voiceInputBtn');
+        if (btn) btn.classList.remove('active');
+    }
+
+    // Search and Filter
+    searchTasks(query) {
+        this.renderTasks(query);
+    }
+
+    filterByCategory(category) {
+        this.renderTasks(null, category);
+    }
+
+    sortTasks(sortBy) {
+        this.renderTasks(null, null, sortBy);
+    }
+
+    // Rendering
+    renderTasks(searchQuery = null, categoryFilter = null, sortBy = 'dueDate') {
+        let filteredTodos = this.todos.filter(todo => !todo.completed);
+        
+        // Apply search
+        if (searchQuery) {
+            filteredTodos = filteredTodos.filter(todo => 
+                todo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                todo.description.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+        }
+        
+        // Apply category filter
+        if (categoryFilter) {
+            filteredTodos = filteredTodos.filter(todo => todo.category === categoryFilter);
+        }
+        
+        // Apply sorting
+        filteredTodos.sort((a, b) => {
+            switch (sortBy) {
+                case 'priority':
+                    const priorityOrder = { 'High': 3, 'Medium': 2, 'Low': 1 };
+                    return priorityOrder[b.priority] - priorityOrder[a.priority];
+                case 'category':
+                    return a.category.localeCompare(b.category);
+                case 'createdAt':
+                    return new Date(b.createdAt) - new Date(a.createdAt);
+                case 'dueDate':
+                default:
+                    if (!a.dueDate && !b.dueDate) return 0;
+                    if (!a.dueDate) return 1;
+                    if (!b.dueDate) return -1;
+                    return new Date(a.dueDate) - new Date(b.dueDate);
+            }
+        });
+        
+        // Render today's tasks
+        const todayTasks = this.getTodayTasks().filter(todo => !todo.completed);
+        this.renderTaskList(todayTasks, 'todayTasks');
+        
+        // Render all tasks
+        this.renderTaskList(filteredTodos, 'taskList');
+    }
+
+    renderTaskList(todos, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        if (todos.length === 0) {
+            container.innerHTML = '<p class="empty-state">No tasks found 📝</p>';
+            return;
+        }
+        
+        container.innerHTML = todos.map(todo => this.createTaskHTML(todo)).join('');
+        
+        // Add event listeners
+        container.querySelectorAll('.task-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', (e) => {
+                const taskId = e.currentTarget.dataset.taskId;
+                this.completeTodo(taskId);
+            });
+        });
+        
+        container.querySelectorAll('.task-delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const taskId = e.currentTarget.dataset.taskId;
+                this.deleteTodo(taskId);
+            });
+        });
+    }
+
+    createTaskHTML(todo) {
+        const isOverdue = todo.dueDate && new Date(todo.dueDate) < new Date() && !todo.completed;
+        const categoryEmojis = {
+            'Personal': '👤',
+            'Work': '💼',
+            'Health': '💪',
+            'Study': '📚',
+            'Shopping': '🛒'
+        };
+        
+        return `
+            <div class="task-item ${todo.completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}" data-task-id="${todo.id}">
+                <div class="task-header">
+                    <div class="task-checkbox ${todo.completed ? 'checked' : ''}" data-task-id="${todo.id}"></div>
+                    <div class="task-title ${todo.completed ? 'completed' : ''}">${todo.title}</div>
+                    <div class="task-priority ${todo.priority.toLowerCase()}">${this.getPriorityEmoji(todo.priority)} ${todo.priority}</div>
+                </div>
+                
+                <div class="task-meta">
+                    <div class="task-category">
+                        <span>${categoryEmojis[todo.category]} ${todo.category}</span>
+                    </div>
+                    ${todo.dueDate ? `<div class="task-due-date">📅 ${this.formatDate(todo.dueDate)}</div>` : ''}
+                </div>
+                
+                ${todo.description ? `<div class="task-description">${todo.description}</div>` : ''}
+                
+                <div class="task-actions">
+                    <button class="btn btn--sm btn--outline task-delete" data-task-id="${todo.id}">🗑️ Delete</button>
+                </div>
+            </div>
+        `;
+    }
+
+    renderCompletedTasks() {
+        const completedTodos = this.todos.filter(todo => todo.completed);
+        this.renderTaskList(completedTodos, 'completedTasks');
+    }
+
+    getPriorityEmoji(priority) {
+        const emojis = { 'High': '🔴', 'Medium': '🟡', 'Low': '🟢' };
+        return emojis[priority] || '⚪';
+    }
+
+    formatDate(dateString) {
+        const date = new Date(dateString);
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        if (date.toDateString() === today.toDateString()) {
+            return 'Today';
+        } else if (date.toDateString() === tomorrow.toDateString()) {
+            return 'Tomorrow';
+        } else {
+            return date.toLocaleDateString();
+        }
+    }
+
+    getTodayTasks() {
+        const today = new Date().toISOString().split('T')[0];
+        return this.todos.filter(todo => todo.dueDate === today);
+    }
+
+    // Analytics
+    updateAnalytics() {
+        const totalTasks = document.getElementById('totalTasks');
+        const completedCount = document.getElementById('completedCount');
+        const currentStreak = document.getElementById('currentStreak');
+        const totalXP = document.getElementById('totalXP');
+        
+        if (totalTasks) totalTasks.textContent = this.todos.length;
+        if (completedCount) completedCount.textContent = this.userProgress.totalCompleted;
+        if (currentStreak) currentStreak.textContent = this.userProgress.streak;
+        if (totalXP) totalXP.textContent = this.userProgress.totalXP;
+    }
+
+    // Animations
+    animateTaskAdd() {
+        // Add XP animation
+        this.addXP(0); // Just update the display
+    }
+
+    animateTaskCompletion(taskId) {
+        const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+        if (taskElement) {
+            taskElement.classList.add('task-completing');
+            setTimeout(() => {
+                this.renderTasks();
+            }, 500);
+        }
+    }
+
+    createConfetti() {
+        const canvas = document.getElementById('particleCanvas');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const particles = [];
+        const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'];
+        
+        // Create particles
+        for (let i = 0; i < 50; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: canvas.height + 10,
+                vx: (Math.random() - 0.5) * 6,
+                vy: -(Math.random() * 8 + 4),
+                color: colors[Math.floor(Math.random() * colors.length)],
+                size: Math.random() * 6 + 2,
+                life: 1,
+                decay: Math.random() * 0.02 + 0.01
+            });
+        }
+        
+        const animate = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.2; // gravity
+                p.life -= p.decay;
+                
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            
+            if (particles.length > 0) {
+                requestAnimationFrame(animate);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        };
+        
+        animate();
+    }
+
+    createLevelUpParticles() {
+        const canvas = document.getElementById('particleCanvas');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const particles = [];
+        const colors = ['#FFD700', '#FFA500', '#FF8C00', '#FFB347'];
+        
+        for (let i = 0; i < 100; i++) {
+            particles.push({
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                vx: (Math.random() - 0.5) * 10,
+                vy: (Math.random() - 0.5) * 10,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                size: Math.random() * 8 + 3,
+                life: 1,
+                decay: Math.random() * 0.02 + 0.01
+            });
+        }
+        
+        const animate = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vx *= 0.99;
+                p.vy *= 0.99;
+                p.life -= p.decay;
+                
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            
+            if (particles.length > 0) {
+                requestAnimationFrame(animate);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        };
+        
+        animate();
+    }
+
+    // Notifications
+    async requestNotificationPermission() {
+        if ('Notification' in window && Notification.permission === 'default') {
+            await Notification.requestPermission();
+        }
+    }
+
+    showNotification(title, body) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(title, { body, icon: '/icon-192x192.png' });
+        }
+    }
+
+    // Modals
+    showModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('hidden');
+            
+            // Focus management
+            setTimeout(() => {
+                const focusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                if (focusable) focusable.focus();
+            }, 100);
+        }
+    }
+
+    hideModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    }
+
+    // Data Management
+    exportData() {
+        const data = {
+            todos: this.todos,
+            userProgress: this.userProgress,
+            settings: this.settings,
+            exportDate: new Date().toISOString()
+        };
+        
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `todowa-backup-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    async importData(file) {
+        if (!file) return;
+        
+        try {
+            const text = await file.text();
+            const data = JSON.parse(text);
+            
+            if (data.todos) this.todos = data.todos;
+            if (data.userProgress) this.userProgress = { ...this.userProgress, ...data.userProgress };
+            if (data.settings) this.settings = { ...this.settings, ...data.settings };
+            
+            await this.saveData();
+            this.updateDisplay();
+            this.applySettings();
+            
+            alert('Data imported successfully!');
+        } catch (error) {
+            console.error('Failed to import data:', error);
+            alert('Failed to import data. Please check the file format.');
+        }
+    }
+
+    async clearAllData() {
+        if (!confirm('Are you sure you want to clear all data? This action cannot be undone.')) return;
+        
+        try {
+            // Clear IndexedDB
+            const transaction = this.db.transaction(['todos', 'userProgress', 'settings'], 'readwrite');
+            transaction.objectStore('todos').clear();
+            transaction.objectStore('userProgress').clear();
+            transaction.objectStore('settings').clear();
+            
+            // Reset in-memory data
+            this.todos = [];
+            this.userProgress = {
+                level: 0,
+                xp: 0,
+                totalXP: 0,
+                streak: 0,
+                lastCompletionDate: null,
+                completedToday: 0,
+                totalCompleted: 0
+            };
+            
+            this.updateDisplay();
+            alert('All data cleared successfully!');
+            
+        } catch (error) {
+            console.error('Failed to clear data:', error);
+            alert('Failed to clear data.');
+        }
+    }
+
+    // Display Updates
+    updateDisplay() {
+        this.renderTasks();
+        this.updateLevelDisplay();
+        this.updateAnalytics();
+    }
+
     updateCurrentDate() {
         const now = new Date();
         const options = { 
             weekday: 'long', 
             year: 'numeric', 
             month: 'long', 
-            day: 'numeric'
-        };
-        const dateString = now.toLocaleDateString('en-US', options);
-        const currentDateElement = document.getElementById('currentDate');
-        if (currentDateElement) {
-            currentDateElement.textContent = dateString;
-        }
-        
-        // Update every minute
-        setTimeout(() => this.updateCurrentDate(), 60000);
-    },
-
-    formatDate(dateString) {
-        const date = new Date(dateString);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        date.setHours(0, 0, 0, 0);
-        
-        const diffTime = date - today;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        if (diffDays === 0) return 'Today';
-        if (diffDays === 1) return 'Tomorrow';
-        if (diffDays === -1) return 'Yesterday';
-        if (diffDays < 0) return `${Math.abs(diffDays)} days ago`;
-        if (diffDays > 0) return `In ${diffDays} days`;
-        
-        return date.toLocaleDateString();
-    },
-
-    isOverdue(dateString) {
-        const today = new Date();
-        const dueDate = new Date(dateString);
-        today.setHours(0, 0, 0, 0);
-        dueDate.setHours(0, 0, 0, 0);
-        return dueDate < today;
-    },
-
-    // Quote management
-    initQuotes() {
-        this.showCurrentQuote();
-        this.startQuoteRotation();
-    },
-
-    showCurrentQuote() {
-        const quoteText = document.getElementById('quoteText');
-        if (quoteText && this.quotes.length > 0) {
-            quoteText.style.opacity = '0';
-            setTimeout(() => {
-                quoteText.textContent = this.quotes[this.currentQuoteIndex];
-                quoteText.style.opacity = '1';
-            }, 250);
-        }
-    },
-
-    nextQuote() {
-        this.currentQuoteIndex = (this.currentQuoteIndex + 1) % this.quotes.length;
-        this.showCurrentQuote();
-    },
-
-    startQuoteRotation() {
-        if (!this.quotePaused) {
-            this.quoteTimer = setInterval(() => {
-                if (!this.quotePaused) {
-                    this.nextQuote();
-                }
-            }, 10000);
-        }
-    },
-
-    toggleQuotePause() {
-        this.quotePaused = !this.quotePaused;
-        const pauseBtn = document.getElementById('quotePause');
-        if (pauseBtn) {
-            pauseBtn.textContent = this.quotePaused ? '▶️' : '⏸️';
-        }
-        
-        if (this.quotePaused && this.quoteTimer) {
-            clearInterval(this.quoteTimer);
-            this.quoteTimer = null;
-        } else if (!this.quotePaused && !this.quoteTimer) {
-            this.startQuoteRotation();
-        }
-    },
-
-    // Level and XP management
-    addExp(amount, reason = '') {
-        const oldLevel = this.userProgress.level;
-        this.userProgress.exp += amount;
-        
-        // Calculate new level
-        let newLevel = 0;
-        for (let i = Object.keys(this.levelSystem).length - 1; i >= 0; i--) {
-            if (this.userProgress.exp >= this.levelSystem[i].threshold) {
-                newLevel = parseInt(i);
-                break;
-            }
-        }
-        
-        this.userProgress.level = newLevel;
-        this.saveUserProgress();
-        this.updateLevelDisplay();
-        
-        // Show level up if leveled up
-        if (newLevel > oldLevel) {
-            this.showLevelUpModal(newLevel);
-        }
-        
-        // Show XP toast
-        this.showToast(`+${amount} XP ${reason}`, 'success');
-    },
-
-    updateLevelDisplay() {
-        const currentLevel = this.userProgress.level;
-        const levelInfo = this.levelSystem[currentLevel];
-        const nextLevelInfo = this.levelSystem[currentLevel + 1];
-        
-        // Update level badge
-        const levelEmoji = document.getElementById('levelEmoji');
-        const levelText = document.getElementById('levelText');
-        if (levelEmoji && levelText) {
-            levelEmoji.textContent = levelInfo.emoji;
-            levelText.textContent = levelInfo.name;
-        }
-        
-        // Update XP bar
-        const expFill = document.getElementById('expFill');
-        const expText = document.getElementById('expText');
-        
-        if (expFill && expText) {
-            if (nextLevelInfo) {
-                const currentExp = this.userProgress.exp - levelInfo.threshold;
-                const neededExp = nextLevelInfo.threshold - levelInfo.threshold;
-                const percentage = Math.max(0, (currentExp / neededExp) * 100);
-                
-                expFill.style.width = `${Math.min(percentage, 100)}%`;
-                expText.textContent = `${this.userProgress.exp} / ${nextLevelInfo.threshold} XP`;
-            } else {
-                expFill.style.width = '100%';
-                expText.textContent = `MAX LEVEL - ${this.userProgress.exp} XP`;
-            }
-        }
-    },
-
-    showLevelUpModal(newLevel) {
-        const levelInfo = this.levelSystem[newLevel];
-        const modal = document.getElementById('levelUpModal');
-        
-        if (modal) {
-            const newLevelEmoji = document.getElementById('newLevelEmoji');
-            const newLevelName = document.getElementById('newLevelName');
-            
-            if (newLevelEmoji && newLevelName) {
-                newLevelEmoji.textContent = levelInfo.emoji;
-                newLevelName.textContent = levelInfo.name;
-            }
-            
-            modal.classList.add('active');
-        }
-    },
-
-    // Task management
-    addTask(task) {
-        if (!task.id) {
-            task.id = Date.now() + Math.random();
-            task.createdAt = new Date().toISOString().split('T')[0];
-        }
-        
-        this.tasks.push(task);
-        this.saveTasks();
-        this.renderTasks();
-        this.updateStats();
-        
-        console.log('Task added:', task);
-    },
-
-    deleteTask(id) {
-        if (confirm('Are you sure you want to delete this task?')) {
-            this.tasks = this.tasks.filter(t => t.id !== id);
-            this.saveTasks();
-            this.renderTasks();
-            this.updateStats();
-            this.showToast('Task deleted!', 'info');
-        }
-    },
-
-    toggleTaskComplete(id) {
-        const task = this.tasks.find(t => t.id === id);
-        if (task) {
-            task.completed = !task.completed;
-            
-            if (task.completed) {
-                task.completedAt = new Date().toISOString().split('T')[0];
-                this.userProgress.totalCompleted++;
-                this.addExp(2, 'for completing a task!');
-                this.showCompletionCelebration(id);
-            } else {
-                task.completedAt = null;
-                if (this.userProgress.totalCompleted > 0) {
-                    this.userProgress.totalCompleted--;
-                }
-            }
-            
-            this.saveTasks();
-            this.renderTasks();
-            this.updateStats();
-        }
-    },
-
-    showCompletionCelebration(taskId) {
-        const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
-        if (taskCard) {
-            taskCard.classList.add('completed');
-            
-            // Create confetti effect
-            for (let i = 0; i < 10; i++) {
-                const particle = document.createElement('div');
-                particle.style.cssText = `
-                    position: fixed;
-                    width: 6px;
-                    height: 6px;
-                    background: var(--accent-primary);
-                    border-radius: 50%;
-                    pointer-events: none;
-                    z-index: 1000;
-                `;
-                
-                const rect = taskCard.getBoundingClientRect();
-                particle.style.left = (rect.left + rect.width / 2) + 'px';
-                particle.style.top = (rect.top + rect.height / 2) + 'px';
-                
-                document.body.appendChild(particle);
-                
-                // Animate particle
-                const angle = (Math.PI * 2 * i) / 10;
-                const velocity = 50 + Math.random() * 30;
-                const vx = Math.cos(angle) * velocity;
-                const vy = Math.sin(angle) * velocity;
-                
-                particle.animate([
-                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-                    { transform: `translate(${vx}px, ${vy + 20}px) scale(0)`, opacity: 0 }
-                ], {
-                    duration: 500,
-                    easing: 'ease-out'
-                }).onfinish = () => particle.remove();
-            }
-        }
-    },
-
-    renderTasks() {
-        const taskList = document.getElementById('taskList');
-        const allTasksList = document.getElementById('allTasksList');
-        const completedTasksList = document.getElementById('completedTasksList');
-        
-        const renderTaskCard = (task) => {
-            const isOverdue = !task.completed && this.isOverdue(task.dueDate);
-            const categoryIcons = {
-                'Work': '💼',
-                'Personal': '👤',
-                'Health': '💪',
-                'Study': '📚',
-                'Shopping': '🛒'
-            };
-            
-            const priorityIcons = {
-                'High': '🔴',
-                'Medium': '🟡',
-                'Low': '🟢'
-            };
-            
-            return `
-                <div class="task-card ${task.completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}" data-task-id="${task.id}">
-                    <div class="task-checkbox ${task.completed ? 'checked' : ''}" onclick="app.toggleTaskComplete(${task.id})">
-                    </div>
-                    <div class="task-content" onclick="app.showTaskDetail(${task.id})">
-                        <div class="task-title">${task.title}</div>
-                        ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
-                        <div class="task-meta">
-                            <div class="task-category">
-                                <span>${categoryIcons[task.category]}</span>
-                                <span>${task.category}</span>
-                            </div>
-                            <div class="task-priority">
-                                <span>${priorityIcons[task.priority]}</span>
-                                <span>${task.priority}</span>
-                            </div>
-                            <div class="task-due-date">
-                                Due: ${this.formatDate(task.dueDate)}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="task-actions">
-                        <button class="task-action-btn" onclick="app.showTaskDetail(${task.id})" title="Edit Task">
-                            ✏️
-                        </button>
-                        <button class="task-action-btn" onclick="app.showTaskTimer(${task.id})" title="Start Timer">
-                            ⏰
-                        </button>
-                        <button class="task-action-btn" onclick="app.deleteTask(${task.id})" title="Delete Task">
-                            🗑️
-                        </button>
-                    </div>
-                </div>
-            `;
+            day: 'numeric' 
         };
         
-        // Render to dashboard
-        if (taskList) {
-            const activeTasks = this.tasks.filter(task => !task.completed);
-            taskList.innerHTML = activeTasks.length > 0 
-                ? activeTasks.map(renderTaskCard).join('') 
-                : '<div class="empty-state">No active tasks. Add one above! 🎯</div>';
+        const dateElement = document.getElementById('currentDate');
+        if (dateElement) {
+            dateElement.textContent = now.toLocaleDateString('en-US', options);
         }
-        
-        // Render to all tasks view
-        if (allTasksList) {
-            allTasksList.innerHTML = this.tasks.length > 0 
-                ? this.tasks.map(renderTaskCard).join('') 
-                : '<div class="empty-state">No tasks found. 📝</div>';
-        }
-        
-        // Render to completed view
-        if (completedTasksList) {
-            const completedTasks = this.tasks.filter(task => task.completed);
-            completedTasksList.innerHTML = completedTasks.length > 0 
-                ? completedTasks.map(renderTaskCard).join('') 
-                : '<div class="empty-state">No completed tasks yet. Complete some tasks! ✅</div>';
-        }
-    },
-
-    updateStats() {
-        const total = this.tasks.length;
-        const completed = this.tasks.filter(task => task.completed).length;
-        const today = new Date().toISOString().split('T')[0];
-        const todayTasks = this.tasks.filter(task => task.dueDate === today && !task.completed).length;
-        
-        const totalElement = document.getElementById('totalTasks');
-        const completedElement = document.getElementById('completedTasks');
-        const todayElement = document.getElementById('todayTasks');
-        const streakElement = document.getElementById('currentStreak');
-        
-        if (totalElement) totalElement.textContent = total;
-        if (completedElement) completedElement.textContent = completed;
-        if (todayElement) todayElement.textContent = todayTasks;
-        if (streakElement) streakElement.textContent = this.userProgress.streak;
-    },
-
-    // Navigation management
-    switchView(viewName) {
-        console.log('Switching to view:', viewName);
-        
-        // Update navigation
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.classList.remove('active');
-        });
-        const activeNavItem = document.querySelector(`[data-view="${viewName}"]`);
-        if (activeNavItem) {
-            activeNavItem.classList.add('active');
-        }
-        
-        // Hide all views
-        document.querySelectorAll('.view-content').forEach(view => {
-            view.classList.add('hidden');
-        });
-        
-        // Show selected view
-        const viewElement = document.getElementById(viewName + 'View');
-        if (viewElement) {
-            viewElement.classList.remove('hidden');
-        }
-        
-        // Re-render tasks for specific views
-        if (viewName === 'allTasks' || viewName === 'completed') {
-            this.renderTasks();
-        }
-        
-        // Close sidebar
-        this.closeSidebar();
-    },
-
-    openSidebar() {
-        console.log('Opening sidebar');
-        const sidebar = document.getElementById('sidebar');
-        const backdrop = document.getElementById('sidebarBackdrop');
-        const hamburger = document.getElementById('hamburgerBtn');
-        
-        if (sidebar) sidebar.classList.add('active');
-        if (backdrop) backdrop.classList.add('active');
-        if (hamburger) hamburger.classList.add('active');
-    },
-
-    closeSidebar() {
-        console.log('Closing sidebar');
-        const sidebar = document.getElementById('sidebar');
-        const backdrop = document.getElementById('sidebarBackdrop');
-        const hamburger = document.getElementById('hamburgerBtn');
-        
-        if (sidebar) sidebar.classList.remove('active');
-        if (backdrop) backdrop.classList.remove('active');
-        if (hamburger) hamburger.classList.remove('active');
-    },
-
-    // Modal management
-    showTaskDetail(id) {
-        const task = this.tasks.find(t => t.id === id);
-        if (task) {
-            document.getElementById('editTaskId').value = task.id;
-            document.getElementById('editTaskTitle').value = task.title;
-            document.getElementById('editTaskDescription').value = task.description || '';
-            document.getElementById('editTaskCategory').value = task.category;
-            document.getElementById('editTaskPriority').value = task.priority;
-            document.getElementById('editTaskDueDate').value = task.dueDate;
-            
-            document.getElementById('taskDetailModal').classList.add('active');
-        }
-    },
-
-    showTaskTimer(id) {
-        document.getElementById('timerModal').classList.add('active');
-    },
-
-    // Utility functions
-    showToast(message, type = 'info') {
-        const toast = document.getElementById('successToast');
-        const toastMessage = document.getElementById('toastMessage');
-        const toastIcon = document.querySelector('.toast-icon');
-        
-        if (toast && toastMessage && toastIcon) {
-            const icons = {
-                success: '🎉',
-                error: '❌',
-                info: 'ℹ️',
-                warning: '⚠️'
-            };
-            
-            toastIcon.textContent = icons[type] || 'ℹ️';
-            toastMessage.textContent = message;
-            
-            toast.classList.add('active');
-            
-            setTimeout(() => {
-                toast.classList.remove('active');
-            }, 3000);
-        }
-    },
-
-    // Event listeners
-    initEventListeners() {
-        console.log('Initializing event listeners...');
-        
-        // Theme toggle
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.cycleTheme();
-            });
-        }
-        
-        // Hamburger menu
-        const hamburgerBtn = document.getElementById('hamburgerBtn');
-        if (hamburgerBtn) {
-            hamburgerBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.openSidebar();
-            });
-        }
-        
-        // Sidebar controls
-        const closeSidebarBtn = document.getElementById('closeSidebar');
-        if (closeSidebarBtn) {
-            closeSidebarBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.closeSidebar();
-            });
-        }
-        
-        const sidebarBackdrop = document.getElementById('sidebarBackdrop');
-        if (sidebarBackdrop) {
-            sidebarBackdrop.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.closeSidebar();
-            });
-        }
-        
-        // Navigation
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                const view = item.getAttribute('data-view');
-                this.switchView(view);
-            });
-        });
-        
-        // Add task form
-        const addTaskForm = document.getElementById('addTaskForm');
-        if (addTaskForm) {
-            addTaskForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                
-                const titleInput = document.getElementById('taskTitle');
-                const descriptionInput = document.getElementById('taskDescription');
-                const categoryInput = document.getElementById('taskCategory');
-                const priorityInput = document.getElementById('taskPriority');
-                const dueDateInput = document.getElementById('taskDueDate');
-                
-                const task = {
-                    title: titleInput.value.trim(),
-                    description: descriptionInput.value.trim(),
-                    category: categoryInput.value,
-                    priority: priorityInput.value,
-                    dueDate: dueDateInput.value,
-                    completed: false
-                };
-                
-                if (task.title && task.dueDate) {
-                    this.addTask(task);
-                    addTaskForm.reset();
-                    
-                    // Set default due date to today
-                    const today = new Date().toISOString().split('T')[0];
-                    dueDateInput.value = today;
-                    
-                    this.showToast('Task added successfully! 📝', 'success');
-                } else {
-                    this.showToast('Please fill in the required fields!', 'error');
-                }
-            });
-        }
-        
-        // Edit task form
-        const editTaskForm = document.getElementById('editTaskForm');
-        if (editTaskForm) {
-            editTaskForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                
-                const taskId = parseFloat(document.getElementById('editTaskId').value);
-                const task = this.tasks.find(t => t.id === taskId);
-                
-                if (task) {
-                    task.title = document.getElementById('editTaskTitle').value.trim();
-                    task.description = document.getElementById('editTaskDescription').value.trim();
-                    task.category = document.getElementById('editTaskCategory').value;
-                    task.priority = document.getElementById('editTaskPriority').value;
-                    task.dueDate = document.getElementById('editTaskDueDate').value;
-                    
-                    this.saveTasks();
-                    this.renderTasks();
-                    document.getElementById('taskDetailModal').classList.remove('active');
-                    this.showToast('Task updated successfully! ✅', 'success');
-                }
-            });
-        }
-        
-        // Delete task button
-        const deleteTaskBtn = document.getElementById('deleteTask');
-        if (deleteTaskBtn) {
-            deleteTaskBtn.addEventListener('click', () => {
-                const taskId = parseFloat(document.getElementById('editTaskId').value);
-                document.getElementById('taskDetailModal').classList.remove('active');
-                this.deleteTask(taskId);
-            });
-        }
-        
-        // Quote controls
-        const quotePause = document.getElementById('quotePause');
-        if (quotePause) {
-            quotePause.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.toggleQuotePause();
-            });
-        }
-        
-        // Modal controls
-        document.querySelectorAll('.modal-close, #closeLevelUp, #closeTimerModal, #closeTaskDetail, #closeDeveloperModal').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const modal = e.target.closest('.modal');
-                if (modal) {
-                    modal.classList.remove('active');
-                }
-            });
-        });
-        
-        // Developer credit
-        const developerCredit = document.getElementById('developerCredit');
-        if (developerCredit) {
-            developerCredit.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const modal = document.getElementById('developerModal');
-                if (modal) {
-                    modal.classList.add('active');
-                }
-            });
-        }
-        
-        // Theme selection
-        document.querySelectorAll('.theme-option').forEach(option => {
-            option.addEventListener('click', () => {
-                const theme = option.getAttribute('data-theme');
-                this.setTheme(theme);
-            });
-        });
-        
-        // Set default due date to today
-        const today = new Date().toISOString().split('T')[0];
-        const taskDueDate = document.getElementById('taskDueDate');
-        if (taskDueDate) {
-            taskDueDate.value = today;
-        }
-        
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey || e.metaKey) {
-                switch (e.key) {
-                    case 'n':
-                        e.preventDefault();
-                        const taskTitle = document.getElementById('taskTitle');
-                        if (taskTitle) taskTitle.focus();
-                        break;
-                    case 't':
-                        e.preventDefault();
-                        this.cycleTheme();
-                        break;
-                }
-            }
-            
-            if (e.key === 'Escape') {
-                // Close any open modals
-                document.querySelectorAll('.modal.active').forEach(modal => {
-                    modal.classList.remove('active');
-                });
-                
-                // Close sidebar
-                this.closeSidebar();
-            }
-        });
-        
-        console.log('Event listeners initialized successfully');
     }
-};
+}
 
-// Initialize app when DOM is loaded
+// Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, initializing Todowa...');
-    app.init();
+    window.todowaApp = new TodowaApp();
 });
 
-// Expose app globally for onclick handlers
-window.app = app;
+// Handle page visibility for timer persistence
+document.addEventListener('visibilitychange', () => {
+    if (window.todowaApp && window.todowaApp.timer) {
+        if (document.hidden) {
+            localStorage.setItem('todowaTimerState', JSON.stringify({
+                ...window.todowaApp.timer,
+                lastUpdate: Date.now()
+            }));
+        } else {
+            const savedState = localStorage.getItem('todowaTimerState');
+            if (savedState) {
+                try {
+                    const timerState = JSON.parse(savedState);
+                    const elapsed = Math.floor((Date.now() - timerState.lastUpdate) / 1000);
+                    if (timerState.isRunning && !timerState.isPaused) {
+                        window.todowaApp.timer.timeLeft = Math.max(0, timerState.timeLeft - elapsed);
+                        window.todowaApp.updateTimerDisplay();
+                    }
+                } catch (e) {
+                    console.error('Failed to restore timer state:', e);
+                }
+            }
+        }
+    }
+});
 
-console.log('Todowa PWA script loaded successfully! 🎯');
+// Handle resize for particle canvas
+window.addEventListener('resize', () => {
+    const canvas = document.getElementById('particleCanvas');
+    if (canvas) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+});
+
+// Service Worker messaging
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data && event.data.type === 'CACHE_UPDATED') {
+            const updateBanner = document.createElement('div');
+            updateBanner.className = 'update-banner';
+            updateBanner.innerHTML = `
+                <div class="update-content">
+                    <span>🆕 New version available!</span>
+                    <button onclick="window.location.reload()" class="btn btn--primary btn--sm">Update</button>
+                </div>
+            `;
+            document.body.prepend(updateBanner);
+        }
+    });
+}

@@ -3,318 +3,400 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todowa - AI-Powered Todo App</title>
-    <meta name="description" content="Next-generation AI-powered Todo application with gamification">
-    <meta name="theme-color" content="#0066ff">
+    <meta name="theme-color" content="#218083">
+    <meta name="description" content="Todowa - Next-generation AI-powered Todo application with gamification">
+    <title>Todowa - Ultimate Todo App</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlRvZG93YSAtIFVsdGltYXRlIFRvZG8gQXBwIiwKICAic2hvcnRfbmFtZSI6ICJUb2Rvd2EiLAogICJkZXNjcmlwdGlvbiI6ICJOZXh0LWdlbmVyYXRpb24gQUktcG93ZXJlZCBUb2RvIGFwcGxpY2F0aW9uIHdpdGggZ2FtaWZpY2F0aW9uIiwKICAic3RhcnRfdXJsIjogIi4vIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAidGhlbWVfY29sb3IiOiAiIzIxODA4MyIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiI2ZjZmNmOSIsCiAgIm9yaWVudGF0aW9uIjogInBvcnRyYWl0LXByaW1hcnkiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSGRwWkhSb1BTSXhPVElpSUdobGFXZG9kRDBpTVRreUlqNDhjbVZqZENCM2FXUjBhRDBpTVRreUlpQm9aV2xuYUhROUlqa3lJaUJtYVd4c1BTSWpNakU0TURneklpOCtQSFJsZUhRZ2VEMGlOVFlpSUhrOUlqWXdJaUJtYVd4c1BTSWpabVpabVptaUlHWnZiblF0YzJsNlpUMGlNalFpSUdadmJuUXRkMlZwWjJoMFBTSTJNREFpSUhSbGVIUXRZVzVqYUc5eVBTSnRhV1JrYkdVaVBsUnZaRzkzWVR3dmRHVjRkRDQ4TDNOMlp6ND0iLAogICAgICAic2l6ZXMiOiAiMTkyeDE5MiIsCiAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiCiAgICB9LAogICAgewogICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjRiV3h1Y3owaWFIUjBjRG92TDNkM2R5NTNNeTUyY21jdk1qQXdNQzl6ZG1jaUlIZHBaSFJvUFNJMU1USWlJR2hsYVdkb2REMGlOVEV5SWo0OGNtVmpkQ0IzYVdSMGFEMGlOVEV5SWlCb1pXbG5hSFE5SWpVeE1pSWdabWxzYkQwaUl6SXhPREE0TXlJdlBqeDBlSFFnZUQwaU1USTRJaUJoUFNVeE0ySWlJR1pwYkd3OUltWm1abVptWWlCbWIyNTBMWE5wZW1VOUlqWXdJaUJtYjI1MExYZGxhV2RvZEQwaU5qQXdJaUIwWlhoMExXRnVZMmh2Y2owaWJXbGtaR3hsSWo1VWIyUnZkMkU4TDNSbGVIUStQQzl6ZG1jKyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIKICAgIH0KICBdCn0=">
+    
+    <!-- Preload fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- App icons -->
+    <link rel="apple-touch-icon" sizes="192x192" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjkyIiBmaWxsPSIjMjE4MDgzIi8+PHRleHQgeD0iNTYiIHk9IjYwIiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iNjAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Ub2Rvd2E8L3RleHQ+PC9zdmc+">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiI+PGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiMyMTgwODMiLz48dGV4dCB4PSIxNiIgeT0iMjIiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VDwvdGV4dD48L3N2Zz4=">
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Main App Container -->
-    <div class="app-container" id="app">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <div class="logo-section">
-                    <h1 class="logo">🎯 Todowa</h1>
-                    <div class="current-date" id="currentDate"></div>
+    <!-- Install prompt -->
+    <div id="install-banner" class="install-banner hidden">
+        <div class="install-content">
+            <span>📱 Install Todowa for the best experience!</span>
+            <button id="install-btn" class="btn btn--primary btn--sm">Install</button>
+            <button id="dismiss-install" class="btn btn--outline btn--sm">Later</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header__content">
+                <div class="header__left">
+                    <button class="hamburger" id="hamburger" aria-label="Menu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                    <div class="logo">
+                        <h1>Todowa 🚀</h1>
+                    </div>
                 </div>
                 
-                <div class="header-controls">
+                <div class="header__center">
+                    <div class="date-display" id="currentDate"></div>
+                </div>
+                
+                <div class="header__right">
                     <div class="level-display" id="levelDisplay">
                         <div class="level-badge">
                             <span class="level-emoji" id="levelEmoji">🆕</span>
                             <span class="level-text" id="levelText">Newbie</span>
                         </div>
-                        <div class="exp-progress">
-                            <div class="exp-bar">
-                                <div class="exp-fill" id="expFill"></div>
-                            </div>
-                            <span class="exp-text" id="expText">0 / 10 XP</span>
+                        <div class="xp-bar">
+                            <div class="xp-progress" id="xpProgress"></div>
                         </div>
+                        <div class="xp-text" id="xpText">0 / 50 XP</div>
                     </div>
-                    
-                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-                        <span class="theme-icon">🌙</span>
-                    </button>
-                    
-                    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
-                        <span class="hamburger-line"></span>
-                        <span class="hamburger-line"></span>
-                        <span class="hamburger-line"></span>
-                    </button>
+                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌓</button>
                 </div>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <!-- Sidebar Navigation -->
-        <nav class="sidebar" id="sidebar">
-            <div class="sidebar-content">
-                <div class="nav-header">
-                    <h2>Menu</h2>
-                    <button class="close-sidebar" id="closeSidebar" aria-label="Close menu">×</button>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="#" data-view="dashboard" class="nav-item active">📊 Dashboard</a></li>
-                    <li><a href="#" data-view="all-tasks" class="nav-item">📝 All Tasks</a></li>
-                    <li><a href="#" data-view="completed" class="nav-item">✅ Completed</a></li>
-                    <li><a href="#" data-view="analytics" class="nav-item">📈 Analytics</a></li>
-                    <li><a href="#" data-view="themes" class="nav-item">🎨 Themes</a></li>
-                    <li><a href="#" data-view="settings" class="nav-item">⚙️ Settings</a></li>
-                    <li><a href="#" data-view="about" class="nav-item">ℹ️ About</a></li>
-                </ul>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar__content">
+            <div class="sidebar__header">
+                <h3>Navigation</h3>
             </div>
-        </nav>
+            <ul class="sidebar__nav">
+                <li><a href="#dashboard" data-nav="dashboard">🏠 Dashboard</a></li>
+                <li><a href="#all-tasks" data-nav="all-tasks">📋 All Tasks</a></li>
+                <li><a href="#completed" data-nav="completed">✅ Completed</a></li>
+                <li><a href="#analytics" data-nav="analytics">📊 Analytics</a></li>
+                <li><a href="#themes" data-nav="themes">🎨 Themes</a></li>
+                <li><a href="#timer" data-nav="timer">⏱️ Timer</a></li>
+                <li><a href="#settings" data-nav="settings">⚙️ Settings</a></li>
+                <li><a href="#about" data-nav="about">ℹ️ About</a></li>
+            </ul>
+        </div>
+    </nav>
 
-        <!-- Sidebar Backdrop -->
-        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Quote Slideshow -->
-            <section class="quote-section">
-                <div class="quote-container" id="quoteContainer">
-                    <p class="quote-text" id="quoteText">Loading inspiration...</p>
-                    <div class="quote-controls">
-                        <button class="quote-pause" id="quotePause" aria-label="Pause quotes">⏸️</button>
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Quote Carousel -->
+            <section class="quotes-section">
+                <div class="quote-carousel" id="quoteCarousel">
+                    <div class="quote-slide active">
+                        <blockquote id="currentQuote">The secret of getting ahead is getting started.</blockquote>
                     </div>
                 </div>
             </section>
 
             <!-- Dashboard View -->
-            <section class="view-content" id="dashboardView">
+            <section class="view-section active" id="dashboard-view">
                 <!-- Add Task Form -->
                 <div class="add-task-section">
-                    <h2>Add New Task</h2>
-                    <form class="add-task-form" id="addTaskForm">
-                        <div class="form-row">
-                            <input type="text" id="taskTitle" class="form-control" placeholder="Task title..." required>
-                            <select id="taskCategory" class="form-control">
-                                <option value="Work">💼 Work</option>
-                                <option value="Personal">👤 Personal</option>
-                                <option value="Health">💪 Health</option>
-                                <option value="Study">📚 Study</option>
-                                <option value="Shopping">🛒 Shopping</option>
-                            </select>
-                        </div>
-                        <textarea id="taskDescription" class="form-control" placeholder="Description (optional)..." rows="2"></textarea>
-                        <div class="form-row">
-                            <select id="taskPriority" class="form-control">
-                                <option value="Low">🟢 Low Priority</option>
-                                <option value="Medium">🟡 Medium Priority</option>
-                                <option value="High">🔴 High Priority</option>
-                            </select>
-                            <input type="date" id="taskDueDate" class="form-control" required>
-                        </div>
-                        <button type="submit" class="btn btn--primary btn--full-width">
-                            <span>➕ Add Task</span>
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Task Statistics -->
-                <div class="stats-section">
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-value" id="totalTasks">0</div>
-                            <div class="stat-label">Total Tasks</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="completedTasks">0</div>
-                            <div class="stat-label">Completed</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="todayTasks">0</div>
-                            <div class="stat-label">Due Today</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="currentStreak">0</div>
-                            <div class="stat-label">Day Streak</div>
+                    <div class="card add-task-card">
+                        <div class="card__body">
+                            <h2>✨ Add New Task</h2>
+                            <form id="addTaskForm" class="add-task-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <input type="text" id="taskTitle" class="form-control" placeholder="Task title..." required>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="button" id="voiceInputBtn" class="btn btn--outline voice-btn" title="Voice input">🎤</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <textarea id="taskDescription" class="form-control" placeholder="Description (optional)" rows="2"></textarea>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <select id="taskCategory" class="form-control">
+                                            <option value="Personal">👤 Personal</option>
+                                            <option value="Work">💼 Work</option>
+                                            <option value="Health">💪 Health</option>
+                                            <option value="Study">📚 Study</option>
+                                            <option value="Shopping">🛒 Shopping</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <select id="taskPriority" class="form-control">
+                                            <option value="Low">🟢 Low</option>
+                                            <option value="Medium">🟡 Medium</option>
+                                            <option value="High">🔴 High</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="date" id="taskDueDate" class="form-control">
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn--primary btn--full-width">
+                                    <span>➕ Add Task</span>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
 
-                <!-- Task List -->
-                <div class="task-list-section">
-                    <div class="task-header">
-                        <h2>Your Tasks</h2>
-                        <div class="task-filters">
+                <!-- Search and Filter -->
+                <div class="controls-section">
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <input type="text" id="searchTasks" class="form-control" placeholder="🔍 Search tasks...">
+                        </div>
+                        <div class="filter-controls">
                             <select id="filterCategory" class="form-control">
                                 <option value="">All Categories</option>
-                                <option value="Work">💼 Work</option>
                                 <option value="Personal">👤 Personal</option>
+                                <option value="Work">💼 Work</option>
                                 <option value="Health">💪 Health</option>
                                 <option value="Study">📚 Study</option>
                                 <option value="Shopping">🛒 Shopping</option>
                             </select>
                             <select id="sortTasks" class="form-control">
-                                <option value="dueDate">Sort by Due Date</option>
-                                <option value="priority">Sort by Priority</option>
-                                <option value="category">Sort by Category</option>
-                                <option value="createdAt">Sort by Created Date</option>
+                                <option value="dueDate">Due Date</option>
+                                <option value="priority">Priority</option>
+                                <option value="category">Category</option>
+                                <option value="createdAt">Created</option>
                             </select>
                         </div>
                     </div>
+                </div>
+
+                <!-- Today's Tasks -->
+                <div class="today-section">
+                    <h3>📅 Today's Tasks</h3>
+                    <div class="task-list" id="todayTasks"></div>
+                </div>
+
+                <!-- All Tasks -->
+                <div class="tasks-section">
+                    <h3>📋 All Tasks</h3>
                     <div class="task-list" id="taskList"></div>
                 </div>
             </section>
 
-            <!-- Other Views (Hidden by default) -->
-            <section class="view-content hidden" id="allTasksView">
-                <h2>All Tasks</h2>
-                <div class="task-list" id="allTasksList"></div>
+            <!-- Completed View -->
+            <section class="view-section" id="completed-view">
+                <h2>✅ Completed Tasks</h2>
+                <div class="task-list" id="completedTasks"></div>
             </section>
 
-            <section class="view-content hidden" id="completedView">
-                <h2>Completed Tasks</h2>
-                <div class="task-list" id="completedTasksList"></div>
-            </section>
-
-            <section class="view-content hidden" id="analyticsView">
-                <h2>Analytics Dashboard</h2>
+            <!-- Analytics View -->
+            <section class="view-section" id="analytics-view">
+                <h2>📊 Analytics</h2>
                 <div class="analytics-grid">
-                    <div class="card">
-                        <h3>Productivity Trend</h3>
-                        <div class="chart-container" style="height: 200px; position: relative;">
-                            <canvas id="productivityChart"></canvas>
+                    <div class="card stat-card">
+                        <div class="card__body">
+                            <div class="stat-number" id="totalTasks">0</div>
+                            <div class="stat-label">Total Tasks</div>
                         </div>
                     </div>
-                    <div class="card">
-                        <h3>Category Distribution</h3>
-                        <div class="chart-container" style="height: 200px; position: relative;">
-                            <canvas id="categoryChart"></canvas>
+                    <div class="card stat-card">
+                        <div class="card__body">
+                            <div class="stat-number" id="completedCount">0</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="card__body">
+                            <div class="stat-number" id="currentStreak">0</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="card__body">
+                            <div class="stat-number" id="totalXP">0</div>
+                            <div class="stat-label">Total XP</div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section class="view-content hidden" id="themesView">
-                <h2>Choose Your Theme</h2>
-                <div class="theme-selector">
-                    <div class="theme-option" data-theme="dark">
+            <!-- Themes View -->
+            <section class="view-section" id="themes-view">
+                <h2>🎨 Themes</h2>
+                <div class="themes-grid">
+                    <div class="theme-card" data-theme="dark">
                         <div class="theme-preview theme-preview--dark"></div>
-                        <h3>Dark Theme</h3>
-                        <p>Professional dark interface with blue accents</p>
+                        <h3>🌑 Dark Theme</h3>
+                        <p>Professional dark theme with blue accents</p>
+                        <button class="btn btn--outline theme-select-btn">Select</button>
                     </div>
-                    <div class="theme-option" data-theme="neon">
+                    <div class="theme-card" data-theme="neon">
                         <div class="theme-preview theme-preview--neon"></div>
-                        <h3>Neon Theme</h3>
-                        <p>Vibrant cyberpunk aesthetics with neon colors</p>
+                        <h3>⚡ Neon Theme</h3>
+                        <p>Vibrant neon colors with dark base</p>
+                        <button class="btn btn--outline theme-select-btn">Select</button>
                     </div>
-                    <div class="theme-option" data-theme="sakura">
+                    <div class="theme-card" data-theme="sakura">
                         <div class="theme-preview theme-preview--sakura"></div>
-                        <h3>Sakura Theme</h3>
-                        <p>Soft pastels inspired by cherry blossoms</p>
+                        <h3>🌸 Sakura Theme</h3>
+                        <p>Soft cherry blossom pastels</p>
+                        <button class="btn btn--outline theme-select-btn">Select</button>
                     </div>
                 </div>
             </section>
 
-            <section class="view-content hidden" id="settingsView">
-                <h2>Settings</h2>
+            <!-- Timer View -->
+            <section class="view-section" id="timer-view">
+                <h2>⏱️ Focus Timer</h2>
+                <div class="timer-section">
+                    <div class="timer-display">
+                        <div class="timer-circle">
+                            <svg class="timer-svg" width="200" height="200">
+                                <circle cx="100" cy="100" r="90" class="timer-bg"></circle>
+                                <circle cx="100" cy="100" r="90" class="timer-progress" id="timerProgress"></circle>
+                            </svg>
+                            <div class="timer-time" id="timerTime">25:00</div>
+                        </div>
+                    </div>
+                    <div class="timer-controls">
+                        <button class="btn btn--primary" id="startTimer">▶️ Start</button>
+                        <button class="btn btn--outline" id="pauseTimer">⏸️ Pause</button>
+                        <button class="btn btn--outline" id="resetTimer">🔄 Reset</button>
+                    </div>
+                    <div class="timer-presets">
+                        <button class="btn btn--secondary timer-preset" data-minutes="25">Pomodoro (25m)</button>
+                        <button class="btn btn--secondary timer-preset" data-minutes="5">Break (5m)</button>
+                        <button class="btn btn--secondary timer-preset" data-minutes="15">Focus (15m)</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings View -->
+            <section class="view-section" id="settings-view">
+                <h2>⚙️ Settings</h2>
                 <div class="settings-grid">
-                    <div class="setting-item">
-                        <h3>Data Management</h3>
-                        <div class="setting-controls">
-                            <button class="btn btn--secondary" id="exportData">📁 Export Data</button>
-                            <button class="btn btn--secondary" id="importData">📂 Import Data</button>
-                            <input type="file" id="importFile" accept=".json" class="hidden">
+                    <div class="card">
+                        <div class="card__body">
+                            <h3>🎭 Accessibility</h3>
+                            <div class="setting-item">
+                                <label class="setting-label">
+                                    <input type="checkbox" id="reducedMotion"> Reduce animations
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <label class="setting-label">
+                                    <input type="checkbox" id="highContrast"> High contrast mode
+                                </label>
+                            </div>
                         </div>
                     </div>
-                    <div class="setting-item">
-                        <h3>Notifications</h3>
-                        <div class="setting-controls">
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="notificationsEnabled" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="setting-item">
-                        <h3>Pomodoro Timer</h3>
-                        <div class="setting-controls">
-                            <input type="number" id="pomodoroLength" class="form-control" value="25" min="5" max="60">
-                            <span>minutes</span>
+                    <div class="card">
+                        <div class="card__body">
+                            <h3>📤 Data Management</h3>
+                            <div class="setting-buttons">
+                                <button class="btn btn--outline" id="exportData">📤 Export Data</button>
+                                <button class="btn btn--outline" id="importData">📥 Import Data</button>
+                                <input type="file" id="importFile" accept=".json,.csv" class="hidden">
+                                <button class="btn btn--outline" id="clearData">🗑️ Clear All Data</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section class="view-content hidden" id="aboutView">
-                <h2>About Todowa</h2>
+            <!-- About View -->
+            <section class="view-section" id="about-view">
+                <h2>ℹ️ About Todowa</h2>
                 <div class="about-content">
-                    <div class="app-info">
-                        <h3>🎯 Todowa v1.0.0</h3>
-                        <p>Next-generation AI-powered Todo application with gamification and modern features.</p>
-                        <div class="features-list">
-                            <h4>Features:</h4>
+                    <div class="card">
+                        <div class="card__body">
+                            <h3>🚀 Version 1.0.0</h3>
+                            <p>Todowa is a next-generation Progressive Web App that gamifies productivity with modern features and seamless offline functionality.</p>
+                            
+                            <h4>✨ Features</h4>
                             <ul>
-                                <li>✅ Offline PWA functionality</li>
-                                <li>🎮 Gamification with XP and levels</li>
-                                <li>🎨 Multiple themes</li>
-                                <li>⏰ Pomodoro timer integration</li>
-                                <li>📊 Analytics and insights</li>
-                                <li>🌙 Dark mode support</li>
+                                <li>🎮 Gamification system with XP and levels</li>
+                                <li>📱 Progressive Web App (PWA)</li>
+                                <li>🎨 Three beautiful themes</li>
+                                <li>⏱️ Built-in Pomodoro timer</li>
+                                <li>🔍 Smart search and filtering</li>
+                                <li>📊 Detailed analytics</li>
+                                <li>🎤 Voice input support</li>
+                                <li>💾 Automatic data backup</li>
                             </ul>
+
+                            <h4>⌨️ Keyboard Shortcuts</h4>
+                            <div class="shortcuts">
+                                <div class="shortcut"><kbd>Ctrl + N</kbd> Add new task</div>
+                                <div class="shortcut"><kbd>/</kbd> Focus search</div>
+                                <div class="shortcut"><kbd>?</kbd> Show help</div>
+                                <div class="shortcut"><kbd>Esc</kbd> Close modals</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
-        </main>
+        </div>
+    </main>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="footer-content">
-                <button class="developer-credit" id="developerCredit">
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__content">
+                <button class="footer__credit" id="creditLink">
                     Developed By WaizMarco 🌹
                 </button>
             </div>
-        </footer>
-    </div>
+        </div>
+    </footer>
 
     <!-- Modals -->
+    
     <!-- Level Up Modal -->
     <div class="modal hidden" id="levelUpModal">
-        <div class="modal-content celebration-modal">
-            <div class="celebration-content">
-                <div class="level-up-animation">
-                    <div class="celebration-particles"></div>
-                    <h2>🎉 LEVEL UP! 🎉</h2>
-                    <div class="new-level-display">
-                        <span class="new-level-emoji" id="newLevelEmoji">⚡</span>
-                        <span class="new-level-name" id="newLevelName">Challenger</span>
-                    </div>
-                    <p class="level-up-message">You've reached a new level of productivity!</p>
-                    <button class="btn btn--primary" id="closeLevelUp">Continue</button>
+        <div class="modal__backdrop"></div>
+        <div class="modal__content">
+            <div class="level-up-celebration">
+                <div class="celebration-emoji">🎉</div>
+                <h2>Level Up!</h2>
+                <div class="new-level">
+                    <span class="new-level-emoji" id="newLevelEmoji">⚡</span>
+                    <span class="new-level-text" id="newLevelText">Challenger</span>
                 </div>
+                <p>Congratulations! You've reached a new level!</p>
+                <button class="btn btn--primary" id="closeLevelUp">Continue</button>
             </div>
         </div>
     </div>
 
-    <!-- Developer Info Modal -->
+    <!-- Developer Modal -->
     <div class="modal hidden" id="developerModal">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modal__backdrop"></div>
+        <div class="modal__content">
+            <div class="modal__header">
                 <h2>👨‍💻 Developer Info</h2>
-                <button class="modal-close" id="closeDeveloperModal">&times;</button>
+                <button class="modal__close" aria-label="Close">✕</button>
             </div>
-            <div class="modal-body">
+            <div class="modal__body">
                 <div class="developer-info">
                     <h3>WaizMarco 🌹</h3>
-                    <p>Full-Stack Developer & UI/UX Designer</p>
+                    <p>Full-stack developer passionate about creating beautiful, functional applications.</p>
                     <div class="social-links">
-                        <a href="#" target="_blank" class="social-link">
-                            <span>🐙</span> GitHub
+                        <a href="#" target="_blank" rel="noopener" class="social-link">
+                            🐙 GitHub
                         </a>
-                        <a href="#" target="_blank" class="social-link">
-                            <span>💼</span> Portfolio
+                        <a href="#" target="_blank" rel="noopener" class="social-link">
+                            💼 Portfolio  
                         </a>
-                        <a href="#" target="_blank" class="social-link">
-                            <span>📱</span> Telegram
+                        <a href="#" target="_blank" rel="noopener" class="social-link">
+                            📱 Telegram
                         </a>
-                        <a href="#" target="_blank" class="social-link">
-                            <span>🐦</span> Twitter/X
+                        <a href="#" target="_blank" rel="noopener" class="social-link">
+                            🐦 Twitter/X
                         </a>
                     </div>
                 </div>
@@ -322,99 +404,112 @@
         </div>
     </div>
 
-    <!-- Task Timer Modal -->
-    <div class="modal hidden" id="timerModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>⏰ Task Timer</h2>
-                <button class="modal-close" id="closeTimerModal">&times;</button>
+    <!-- Confirmation Modal -->
+    <div class="modal hidden" id="confirmModal">
+        <div class="modal__backdrop"></div>
+        <div class="modal__content">
+            <div class="modal__header">
+                <h2 id="confirmTitle">Confirm Action</h2>
             </div>
-            <div class="modal-body">
-                <div class="timer-display">
-                    <div class="timer-circle">
-                        <svg class="timer-svg" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="45" class="timer-bg"></circle>
-                            <circle cx="50" cy="50" r="45" class="timer-progress" id="timerProgress"></circle>
-                        </svg>
-                        <div class="timer-text" id="timerText">25:00</div>
+            <div class="modal__body">
+                <p id="confirmMessage">Are you sure you want to proceed?</p>
+            </div>
+            <div class="modal__footer">
+                <button class="btn btn--outline" id="confirmCancel">Cancel</button>
+                <button class="btn btn--primary" id="confirmOk">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal hidden" id="helpModal">
+        <div class="modal__backdrop"></div>
+        <div class="modal__content">
+            <div class="modal__header">
+                <h2>❓ Help & Shortcuts</h2>
+                <button class="modal__close" aria-label="Close">✕</button>
+            </div>
+            <div class="modal__body">
+                <div class="help-content">
+                    <h3>⌨️ Keyboard Shortcuts</h3>
+                    <div class="shortcuts">
+                        <div class="shortcut"><kbd>Ctrl + N</kbd> Add new task</div>
+                        <div class="shortcut"><kbd>/</kbd> Focus search</div>
+                        <div class="shortcut"><kbd>?</kbd> Show this help</div>
+                        <div class="shortcut"><kbd>Esc</kbd> Close modals</div>
                     </div>
-                    <div class="timer-controls">
-                        <button class="btn btn--primary" id="startTimer">Start</button>
-                        <button class="btn btn--secondary" id="pauseTimer">Pause</button>
-                        <button class="btn btn--secondary" id="resetTimer">Reset</button>
-                    </div>
+                    
+                    <h3>🎮 Gamification</h3>
+                    <ul>
+                        <li>Complete tasks to earn XP</li>
+                        <li>Level up to unlock new ranks</li>
+                        <li>Maintain streaks for bonus XP</li>
+                        <li>Perfect days give maximum rewards</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Task Detail Modal -->
-    <div class="modal hidden" id="taskDetailModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Task Details</h2>
-                <button class="modal-close" id="closeTaskDetail">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="editTaskForm">
-                    <input type="hidden" id="editTaskId">
-                    <div class="form-group">
-                        <label class="form-label">Title</label>
-                        <input type="text" id="editTaskTitle" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Description</label>
-                        <textarea id="editTaskDescription" class="form-control" rows="3"></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Category</label>
-                            <select id="editTaskCategory" class="form-control">
-                                <option value="Work">💼 Work</option>
-                                <option value="Personal">👤 Personal</option>
-                                <option value="Health">💪 Health</option>
-                                <option value="Study">📚 Study</option>
-                                <option value="Shopping">🛒 Shopping</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Priority</label>
-                            <select id="editTaskPriority" class="form-control">
-                                <option value="Low">🟢 Low</option>
-                                <option value="Medium">🟡 Medium</option>
-                                <option value="High">🔴 High</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Due Date</label>
-                        <input type="date" id="editTaskDueDate" class="form-control" required>
-                    </div>
-                    <div class="modal-actions">
-                        <button type="submit" class="btn btn--primary">Save Changes</button>
-                        <button type="button" class="btn btn--secondary" id="deleteTask">Delete Task</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    <!-- Canvas for particles -->
+    <canvas id="particleCanvas" class="particle-canvas"></canvas>
 
-    <!-- Success Toast -->
-    <div class="toast hidden" id="successToast">
-        <div class="toast-content">
-            <span class="toast-icon">🎉</span>
-            <span class="toast-message" id="toastMessage">Task completed!</span>
-        </div>
-    </div>
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Inline service worker
+                const swCode = `
+                const CACHE_NAME = 'todowa-v1';
+                const urlsToCache = [
+                    '/',
+                    '/index.html',
+                    '/style.css',
+                    '/app.js',
+                    'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap'
+                ];
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="manifest" href="manifest.json" />
-<script>
-  if ('serviceWorker' in navigator) {
-     navigator.serviceWorker.register('sw.js');
-  }
-</script>
+                self.addEventListener('install', event => {
+                    event.waitUntil(
+                        caches.open(CACHE_NAME)
+                            .then(cache => cache.addAll(urlsToCache))
+                    );
+                });
 
+                self.addEventListener('fetch', event => {
+                    event.respondWith(
+                        caches.match(event.request)
+                            .then(response => {
+                                if (response) {
+                                    return response;
+                                }
+                                return fetch(event.request);
+                            })
+                    );
+                });
+
+                self.addEventListener('sync', event => {
+                    if (event.tag === 'background-sync') {
+                        event.waitUntil(syncData());
+                    }
+                });
+
+                function syncData() {
+                    // Background sync logic would go here
+                    return Promise.resolve();
+                }
+                `;
+
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(registration => console.log('SW registered:', registration))
+                    .catch(error => console.log('SW registration failed:', error));
+            });
+        }
+    </script>
+    
     <script src="app.js"></script>
 </body>
 </html>
